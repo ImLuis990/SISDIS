@@ -1,0 +1,47 @@
+@startuml CasosDeUso_PlataformaSalud
+left to right direction
+skinparam packageStyle rectangle
+skinparam roundcorner 10
+skinparam actorStyle awesome
+
+actor "Paciente" as pac
+actor "Admisionista" as adm
+actor "Médico" as med
+actor "Sistema Sede Legado" as his
+actor "Auditor" as aud
+
+rectangle "Plataforma Distribuida de Interoperabilidad Clínica (HSB + FHIR)" {
+    usecase "CU1: Ingerir mensaje clínico\n(HL7 v2 ADT/ORU o CSV)" as CU1
+    usecase "CU2: Validar y transformar a FHIR R4\n(Patient, Encounter, CIE-10, LOINC)" as CU2
+    usecase "CU3: Enrutar y persistir en nodo de sede" as CU3
+    usecase "CU4: Consultar historia clínica unificada\n(Tolerante a caídas de sedes)" as CU4
+    usecase "CU5: Buscar paciente y admitir con triage" as CU5
+    usecase "CU6: Registrar diagnóstico CIE-10 y evolución" as CU6
+    usecase "CU7: Formular medicamentos y ordenar tecnologías" as CU7
+    usecase "CU8: Registrar egreso con sello de integridad" as CU8
+    usecase "CU9: Descargar Bundle FHIR de su historia" as CU9
+    usecase "CU10: Consultar accesos a su historia clínica" as CU10
+    usecase "CU11: Monitorear estado de nodos y cobertura FHIR" as CU11
+    usecase "CU12: Verificar integridad de auditoría encadenada" as CU12
+}
+
+his --> CU1
+CU1 ..> CU2 : <<include>>
+CU2 ..> CU3 : <<include>>
+
+pac --> CU4
+pac --> CU9
+pac --> CU10
+
+adm --> CU5
+adm --> CU11
+
+med --> CU4
+med --> CU6
+med --> CU7
+med --> CU8
+
+aud --> CU4
+aud --> CU11
+aud --> CU12
+@enduml

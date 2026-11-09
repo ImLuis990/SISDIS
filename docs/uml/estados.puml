@@ -1,0 +1,63 @@
+@startuml Estados_Mensaje_HSB
+[*] --> RECIBIDO : Ingesta HTTP (HL7 v2 o CSV)
+
+state RECIBIDO {
+    RECIBIDO : Registro preliminar en BD
+    RECIBIDO : Extracción clave idempotencia (MSH-10 / Hash)
+}
+
+RECIBIDO --> DUPLICADO : Clave ya existe en BD
+DUPLICADO --> [*] : Respuesta idempotente (Sin reprocesar)
+
+RECIBIDO --> VALIDANDO : Mensaje nuevo
+
+state VALIDANDO {
+    VALIDANDO : Valida formato documento (4-15 dígitos)
+    VALIDANDO : Valida sexo (M, F, O)
+    VALIDANDO : Valida terminología (CIE-10 / LOINC)
+}
+
+VALIDANDO --> RECHAZADO : Falla en 1 o más reglas
+RECHAZADO --> [*] : Log auditoría con lista de motivos
+
+VALIDANDO --> TRANSFORMADO : Validación exitosa
+
+state TRANSFORMADO {
+    TRANSFORMADO : Mapeo a FHIR R4
+    TRANSFORMADO : Creación Bundle transaction (PUT determinista)
+}
+
+TRANSFORMADO --> ENVIANDO_FHIR : Publicar a HAPI FHIR (:8090)
+
+state ENVIANDO_FHIR {
+    ENVIANDO_FHIR : PUT /Bundle en HAPI FHIR
+}
+
+ENVIANDO_FHIR --> PERSISTIENDO_SEDE : Éxito en HAPI FHIR
+
+state PERSISTIENDO_SEDE {
+    PERSISTIENDO_SEDE : INSERT en PostgreSQL sede correspondiente
+    PERSISTIENDO_SEDE : Generación hash de auditoría
+}
+
+PERSISTIENDO_SEDE --> ENTREGADO : Persistencia exitosa
+ENTREGADO --> [*] : Fin con estado exitoso
+
+ENVIANDO_FHIR --> REINTENTANDO : Fallo de conexión / caída de nodo
+PERSISTIENDO_SEDE --> REINTENTANDO : Fallo de conexión / nodo caído
+
+state REINTENTANDO {
+    REINTENTANDO : Backoff exponencial (1s, 2s, 4s...)
+    REINTENTANDO : Contador de intentos++
+}
+
+REINTENTANDO --> ENVIANDO_FHIR : Siguiente intento (intentos <= 4)
+REINTENTANDO --> MUERTO : Superó límite máximo (intentos > 4)
+
+state MUERTO {
+    MUERTO : Almacenado en Dead-Letter Queue (DLQ)
+    MUERTO : Alerta para operador / reencolado manual
+}
+
+MUERTO --> [*] : Requiere intervención
+@enduml

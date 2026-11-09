@@ -1,0 +1,56 @@
+@startuml Secuencia_Ingesta_HL7_FHIR
+autonumber
+skinparam responseMessageBelowArrow true
+skinparam BoxPadding 10
+
+actor "HIS Sede 2\n(Cartagena)" as HIS
+boundary "HSB API\n(FastAPI :8001)" as HSB
+control "Validador &\nIdempotencia" as VAL
+control "Normalizador\nFHIR R4" as NORM
+database "Servidor\nHAPI FHIR (:8090)" as HAPI
+database "Nodo BD Sede 2\n(PostgreSQL :5432)" as DB2
+control "Módulo Auditoría\n(Hash Chained)" as AUD
+
+HIS -> HSB: POST /hsb/hl7 (01_adt_a01_valido_sede2.hl7)
+activate HSB
+
+HSB -> VAL: Verificar idempotencia (MSH-10 / SHA-256)
+activate VAL
+alt Mensaje ya procesado (Duplicado)
+    VAL --> HSB: Estado DUPLICADO (ya existe)
+    HSB --> HIS: 200 OK {"status": "duplicado", "id": "MSG-0001"}
+else Mensaje nuevo
+    VAL -> VAL: Validar campos (doc numérico, sexo M/F/O, CIE-10)
+    alt Validación Fallida
+        VAL --> HSB: Rechazado (3 motivos detectados)
+        HSB -> AUD: Registrar evento RECHAZADO con SHA-256
+        HSB --> HIS: 400 Bad Request {"status": "rechazado", "motivos": [...]}
+    else Validación Exitosa
+        VAL --> HSB: Mensaje Válido
+        deactivate VAL
+
+        HSB -> NORM: Transformar a FHIR R4 Bundle transaction
+        activate NORM
+        NORM --> HSB: Bundle R4 (Patient/pac-1007, Encounter, Condition J45.9)
+        deactivate NORM
+
+        HSB -> HAPI: PUT /Bundle (Transaction determinista)
+        activate HAPI
+        HAPI --> HSB: 200 OK (Recursos persistidos en FHIR)
+        deactivate HAPI
+
+        HSB -> DB2: INSERT usuario, atencion, diagnostico
+        activate DB2
+        DB2 --> HSB: Confirmación de persistencia local
+        deactivate DB2
+
+        HSB -> AUD: Registrar evento auditoría (hash = SHA-256(prev_hash + evento))
+        activate AUD
+        AUD --> HSB: Hash encadenado generado
+        deactivate AUD
+
+        HSB --> HIS: 200 OK {"status": "entregado", "paciente": "1007", "sede": 2, "audit_hash": "..."}
+    end
+end
+deactivate HSB
+@enduml

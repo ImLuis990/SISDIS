@@ -1,0 +1,125 @@
+@startuml Clases_PlataformaSalud
+skinparam classAttributeIconSize 0
+
+class Usuario {
+    +BigInteger documento_id <<PK>>
+    +String tipo_documento
+    +String nombre_completo
+    +Date fecha_nacimiento
+    +Integer edad
+    +String sexo
+    +String fhir_patient_id
+    +DateTime created_at
+    +DateTime updated_at
+}
+
+class Atencion {
+    +Integer atencion_id <<PK>>
+    +BigInteger documento_id <<FK>>
+    +String entidad_salud
+    +DateTime fecha_ingreso
+    +String modalidad_entrega
+    +String entorno_atencion
+    +String via_ingreso
+    +String clasificacion_triage
+    +DateTime fecha_triage
+}
+
+class Diagnostico {
+    +Integer diagnostico_id <<PK>>
+    +Integer atencion_id <<FK>>
+    +String cie10
+    +String descripcion
+    +String tipo_diagnostico
+    +DateTime fecha_diagnostico
+}
+
+class TecnologiaSalud {
+    +UUID tecnologia_id <<PK>>
+    +Integer atencion_id <<FK>>
+    +String descripcion_medicamento
+    +String codigo_tecnologia
+    +Integer cantidad
+    +String tipo_tecnologia
+}
+
+class Egreso {
+    +Integer egreso_id <<PK>>
+    +Integer atencion_id <<FK>>
+    +DateTime fecha_egreso
+    +String destino_egreso
+    +String diagnostico_muerte
+}
+
+class ProfesionalSalud {
+    +String profesional_id <<PK>>
+    +String nombre_completo
+    +String especialidad
+    +String registro_medico
+}
+
+class MensajeBus {
+    +UUID mensaje_id <<PK>>
+    +String clave_idempotencia
+    +String formato_origen
+    +Integer sede_origen
+    +Text contenido_raw
+    +String estado
+    +Integer intentos_reintento
+    +Text motivo_rechazo
+    +String fhir_bundle_id
+    +DateTime created_at
+}
+
+class EventoAuditoria {
+    +Integer evento_id <<PK>>
+    +String prev_hash
+    +String hash
+    +DateTime timestamp
+    +String actor
+    +String rol
+    +String accion
+    +Integer sede_id
+    +String recurso_afectado
+    +Text detalle
+    +String resultado
+}
+
+class RefTerminologia {
+    +String codigo_local <<PK>>
+    +String sistema_destino
+    +String codigo_estandar
+    +String descripcion
+    +String tipo_terminologia
+}
+
+class FhirBundle {
+    +String bundle_id
+    +String tipo
+    +String paciente_ref
+    +List<Resource> entries
+    +String version_fhir
+    +Boolean validado
+}
+
+class SedeConfig {
+    +Integer sede_id <<PK>>
+    +String nombre_sede
+    +String ciudad
+    +String host_db
+    +Integer puerto_db
+    +String db_name
+    +String estado_salud
+}
+
+Usuario "1" *-- "0..*" Atencion : registra
+Atencion "1" *-- "0..*" Diagnostico : incluye
+Atencion "1" *-- "0..*" TecnologiaSalud : prescribe
+Atencion "1" *-- "0..1" Egreso : finaliza
+ProfesionalSalud "1" -- "0..*" Atencion : atiende
+
+MensajeBus "1" --> "0..1" FhirBundle : genera
+MensajeBus ..> RefTerminologia : consulta mapeo
+MensajeBus ..> SedeConfig : enruta a sede
+EventoAuditoria "1" --> "1" EventoAuditoria : encadena por hash
+@enduml

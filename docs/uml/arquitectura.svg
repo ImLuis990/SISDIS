@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 860" width="100%" height="100%" style="background:#f8fafc; font-family:system-ui, -apple-system, sans-serif;">
+  <defs>
+    <filter id="ashadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="2" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+    <marker id="a-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563eb"/>
+    </marker>
+    <marker id="a-arrow-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="600" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#0f172a">Arquitectura Global de la Plataforma de Interoperabilidad en Salud</text>
+  <text x="600" y="65" text-anchor="middle" font-size="14" fill="#64748b">Integración de Sedes Distribuidas, HSB, Servidor FHIR R4, Nodos PostgreSQL y Vistas por Rol</text>
+
+  <!-- Layer 1: Sistemas Legados (Sedes) -->
+  <rect x="50" y="90" width="1100" height="110" rx="14" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5" filter="url(#ashadow)"/>
+  <text x="80" y="115" font-size="13" font-weight="bold" fill="#475569">1. CAPA DE SISTEMAS LEGADOS (3 SEDES DE SALUD)</text>
+  
+  <!-- Sede 1 Sincelejo -->
+  <g transform="translate(80, 130)">
+    <rect x="0" y="0" width="310" height="55" rx="8" fill="#ffffff" stroke="#4f46e5" stroke-width="1.5"/>
+    <text x="20" y="24" font-size="13" font-weight="bold" fill="#312e81">Sede 1: Sincelejo (HIS Meditech)</text>
+    <text x="20" y="44" font-size="11" fill="#6366f1">Emite: HL7 v2 ORU^R01 (Laboratorios)</text>
+  </g>
+  <!-- Sede 2 Cartagena -->
+  <g transform="translate(440, 130)">
+    <rect x="0" y="0" width="320" height="55" rx="8" fill="#ffffff" stroke="#4f46e5" stroke-width="1.5"/>
+    <text x="20" y="24" font-size="13" font-weight="bold" fill="#312e81">Sede 2: Cartagena (HIS Servinte)</text>
+    <text x="20" y="44" font-size="11" fill="#6366f1">Emite: HL7 v2 ADT^A01 (Admisión / Diagnóstico)</text>
+  </g>
+  <!-- Sede 3 Corozal -->
+  <g transform="translate(810, 130)">
+    <rect x="0" y="0" width="310" height="55" rx="8" fill="#ffffff" stroke="#4f46e5" stroke-width="1.5"/>
+    <text x="20" y="24" font-size="13" font-weight="bold" fill="#312e81">Sede 3: Corozal (SISPRO Local)</text>
+    <text x="20" y="44" font-size="11" fill="#6366f1">Emite: CSV Legado (Separador ;)</text>
+  </g>
+
+  <!-- Flow Arrows Down to HSB -->
+  <line x1="235" y1="185" x2="235" y2="230" stroke="#2563eb" stroke-width="2" marker-end="url(#a-arrow)"/>
+  <line x1="600" y1="185" x2="600" y2="230" stroke="#2563eb" stroke-width="2" marker-end="url(#a-arrow)"/>
+  <line x1="965" y1="185" x2="965" y2="230" stroke="#2563eb" stroke-width="2" marker-end="url(#a-arrow)"/>
+
+  <!-- Layer 2: HSB Service Bus -->
+  <rect x="50" y="230" width="1100" height="150" rx="14" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" filter="url(#ashadow)"/>
+  <text x="80" y="255" font-size="14" font-weight="bold" fill="#1e40af">2. HEALTH SERVICE BUS (HSB) — FastAPI :8001 / Interno :8000</text>
+  
+  <g transform="translate(70, 270)">
+    <rect x="0" y="0" width="200" height="90" rx="8" fill="#ffffff" stroke="#93c5fd" stroke-width="1.5"/>
+    <text x="15" y="22" font-size="12" font-weight="bold" fill="#1e3a8a">Ingesta &amp; Endpoints</text>
+    <text x="15" y="42" font-size="11" fill="#334155">• POST /hsb/hl7</text>
+    <text x="15" y="60" font-size="11" fill="#334155">• POST /hsb/csv?sede=N</text>
+    <text x="15" y="78" font-size="11" fill="#334155">• GET /health &amp; /metrics</text>
+  </g>
+
+  <g transform="translate(290, 270)">
+    <rect x="0" y="0" width="190" height="90" rx="8" fill="#ffffff" stroke="#93c5fd" stroke-width="1.5"/>
+    <text x="15" y="22" font-size="12" font-weight="bold" fill="#1e3a8a">Validación &amp; Idemp.</text>
+    <text x="15" y="42" font-size="11" fill="#334155">• MSH-10 / Hash persistente</text>
+    <text x="15" y="60" font-size="11" fill="#334155">• Doc numérico, Sexo M/F/O</text>
+    <text x="15" y="78" font-size="11" fill="#334155">• Mapeo CIE-10 &amp; LOINC</text>
+  </g>
+
+  <g transform="translate(500, 270)">
+    <rect x="0" y="0" width="200" height="90" rx="8" fill="#ffffff" stroke="#93c5fd" stroke-width="1.5"/>
+    <text x="15" y="22" font-size="12" font-weight="bold" fill="#1e3a8a">Normalizador FHIR R4</text>
+    <text x="15" y="42" font-size="11" fill="#334155">• Patient (pac-&lt;doc&gt;)</text>
+    <text x="15" y="60" font-size="11" fill="#334155">• Encounter, Condition</text>
+    <text x="15" y="78" font-size="11" fill="#334155">• Observation en Bundle</text>
+  </g>
+
+  <g transform="translate(720, 270)">
+    <rect x="0" y="0" width="200" height="90" rx="8" fill="#ffffff" stroke="#93c5fd" stroke-width="1.5"/>
+    <text x="15" y="22" font-size="12" font-weight="bold" fill="#1e3a8a">Cola Reintentos &amp; DLQ</text>
+    <text x="15" y="42" font-size="11" fill="#334155">• Backoff (1s, 2s, 4s...)</text>
+    <text x="15" y="60" font-size="11" fill="#334155">• Máximo 4 reintentos</text>
+    <text x="15" y="78" font-size="11" fill="#334155">• Cola mensajes muertos</text>
+  </g>
+
+  <g transform="translate(940, 270)">
+    <rect x="0" y="0" width="190" height="90" rx="8" fill="#ffffff" stroke="#93c5fd" stroke-width="1.5"/>
+    <text x="15" y="22" font-size="12" font-weight="bold" fill="#1e3a8a">Auditoría Hash</text>
+    <text x="15" y="42" font-size="11" fill="#334155">• SHA-256 encadenado</text>
+    <text x="15" y="60" font-size="11" fill="#334155">• Inmutabilidad cripto</text>
+    <text x="15" y="78" font-size="11" fill="#334155">• Verificador de integridad</text>
+  </g>
+
+  <!-- Flow to FHIR & DB -->
+  <line x1="600" y1="380" x2="600" y2="420" stroke="#2563eb" stroke-width="2" marker-end="url(#a-arrow)"/>
+
+  <!-- Layer 3: Servidores y Almacenamiento Distribuido -->
+  <rect x="50" y="420" width="1100" height="150" rx="14" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5" filter="url(#ashadow)"/>
+  <text x="80" y="445" font-size="13" font-weight="bold" fill="#475569">3. CAPA DE SERVIDORES FHIR Y ALMACENAMIENTO DISTRIBUIDO</text>
+
+  <!-- HAPI FHIR -->
+  <g transform="translate(80, 460)">
+    <rect x="0" y="0" width="230" height="90" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+    <text x="20" y="24" font-size="13" font-weight="bold" fill="#9a3412">HAPI FHIR Server R4</text>
+    <text x="20" y="44" font-size="11" fill="#7c2d12">• Puerto :8090 / :8080</text>
+    <text x="20" y="62" font-size="11" fill="#7c2d12">• Transaction PUT determinista</text>
+    <text x="20" y="80" font-size="11" fill="#7c2d12">• /fhir/metadata, $validate</text>
+  </g>
+
+  <!-- Sede 1 DB -->
+  <g transform="translate(340, 460)">
+    <rect x="0" y="0" width="180" height="90" rx="8" fill="#ffffff" stroke="#6d28d9" stroke-width="1.5"/>
+    <text x="15" y="22" font-size="12" font-weight="bold" fill="#4c1d95">pg_sede1 (:5431)</text>
+    <text x="15" y="42" font-size="11" fill="#334155">Sincelejo</text>
+    <text x="15" y="60" font-size="10" fill="#64748b">historia_clinica_sede1</text>
+    <text x="15" y="78" font-size="10" fill="#64748b">Healthcheck: pg_isready</text>
+  </g>
+
+  <!-- Sede 2 DB -->
+  <g transform="translate(540, 460)">
+    <rect x="0" y="0" width="180" height="90" rx="8" fill="#ffffff" stroke="#6d28d9" stroke-width="1.5"/>
+    <text x="15" y="22" font-size="12" font-weight="bold" fill="#4c1d95">pg_sede2 (:5432)</text>
+    <text x="15" y="42" font-size="11" fill="#334155">Cartagena</text>
+    <text x="15" y="60" font-size="10" fill="#64748b">historia_clinica_sede2</text>
+    <text x="15" y="78" font-size="10" fill="#64748b">Healthcheck: pg_isready</text>
+  </g>
+
+  <!-- Sede 3 DB -->
+  <g transform="translate(740, 460)">
+    <rect x="0" y="0" width="180" height="90" rx="8" fill="#ffffff" stroke="#6d28d9" stroke-width="1.5"/>
+    <text x="15" y="22" font-size="12" font-weight="bold" fill="#4c1d95">pg_sede3 (:5433)</text>
+    <text x="15" y="42" font-size="11" fill="#334155">Corozal</text>
+    <text x="15" y="60" font-size="10" fill="#64748b">historia_clinica_sede3</text>
+    <text x="15" y="78" font-size="10" fill="#64748b">Healthcheck: pg_isready</text>
+  </g>
+
+  <!-- Audit DB -->
+  <g transform="translate(940, 460)">
+    <rect x="0" y="0" width="180" height="90" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/>
+    <text x="15" y="22" font-size="12" font-weight="bold" fill="#047857">hsb_audit_db</text>
+    <text x="15" y="42" font-size="11" fill="#334155">Trazabilidad</text>
+    <text x="15" y="60" font-size="10" fill="#64748b">evento_auditoria</text>
+    <text x="15" y="78" font-size="10" fill="#64748b">Cadena SHA-256</text>
+  </g>
+
+  <!-- Layer 4: Aplicación Web y 4 Vistas -->
+  <rect x="50" y="610" width="1100" height="200" rx="14" fill="#ffffff" stroke="#2563eb" stroke-width="2" filter="url(#ashadow)"/>
+  <text x="80" y="635" font-size="14" font-weight="bold" fill="#1e3a8a">4. CAPA DE APLICACIÓN Y LAS 4 VISTAS POR ROL (FastAPI Gateway + Web UI :5000)</text>
+  <text x="80" y="655" font-size="12" fill="#64748b">Seguridad RBAC con JWT • Consulta Unificada Multi-Sede Tolerante a Fallos Parciales (Degradación)</text>
+
+  <!-- Vista Paciente -->
+  <g transform="translate(70, 675)">
+    <rect x="0" y="0" width="250" height="115" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+    <text x="15" y="22" font-size="13" font-weight="bold" fill="#15803d">Vista Paciente</text>
+    <text x="15" y="42" font-size="11" fill="#334155">• Login con su documento</text>
+    <text x="15" y="60" font-size="11" fill="#334155">• HC unificada ordenada cronológico</text>
+    <text x="15" y="78" font-size="11" fill="#334155">• Botón descargar Bundle FHIR</text>
+    <text x="15" y="96" font-size="11" fill="#334155">• Ver quién accedió a su historia</text>
+  </g>
+
+  <!-- Vista Admisionista -->
+  <g transform="translate(340, 675)">
+    <rect x="0" y="0" width="250" height="115" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="15" y="22" font-size="13" font-weight="bold" fill="#1d4ed8">Vista Admisionista</text>
+    <text x="15" y="42" font-size="11" fill="#334155">• Búsqueda por documento</text>
+    <text x="15" y="60" font-size="11" fill="#334155">• Detección sedes donde existe</text>
+    <text x="15" y="78" font-size="11" fill="#334155">• Formulario admisión con triage</text>
+    <text x="15" y="96" font-size="11" fill="#334155">• Monitoreo mensajes HSB (sin dx)</text>
+  </g>
+
+  <!-- Vista Médico -->
+  <g transform="translate(610, 675)">
+    <rect x="0" y="0" width="250" height="115" rx="8" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+    <text x="15" y="22" font-size="13" font-weight="bold" fill="#b45309">Vista Médico</text>
+    <text x="15" y="42" font-size="11" fill="#334155">• HC completa de las 3 sedes</text>
+    <text x="15" y="60" font-size="11" fill="#334155">• Registrar diagnóstico CIE-10</text>
+    <text x="15" y="78" font-size="11" fill="#334155">• Ordenar tecnologías / medicación</text>
+    <text x="15" y="96" font-size="11" fill="#334155">• Egreso clínico con sello SHA-256</text>
+  </g>
+
+  <!-- Vista Reporte de HC -->
+  <g transform="translate(880, 675)">
+    <rect x="0" y="0" width="250" height="115" rx="8" fill="#faf5ff" stroke="#7e22ce" stroke-width="1.5"/>
+    <text x="15" y="22" font-size="13" font-weight="bold" fill="#6b21a8">Reporte HC &amp; Monitoreo</text>
+    <text x="15" y="42" font-size="11" fill="#334155">• Reporte agrupado por sede</text>
+    <text x="15" y="60" font-size="11" fill="#334155">• Cobertura % campos y faltantes</text>
+    <text x="15" y="78" font-size="11" fill="#334155">• Sello integridad / Imprimir / FHIR</text>
+    <text x="15" y="96" font-size="11" fill="#334155">• Tablero: nodos, métricas, hash</text>
+  </g>
+
+  <!-- Two way arrows between Layer 3 & 4 -->
+  <line x1="600" y1="570" x2="600" y2="610" stroke="#16a34a" stroke-width="2" marker-end="url(#a-arrow-g)"/>
+</svg>

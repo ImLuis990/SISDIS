@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 800" width="100%" height="100%" style="background:#f8fafc; font-family:system-ui, -apple-system, sans-serif;">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="2" dy="4" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.08" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b"/>
+    </marker>
+    <marker id="include" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#3b82f6"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="550" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#0f172a">Diagrama de Casos de Uso — Plataforma de Interoperabilidad en Salud</text>
+  <text x="550" y="65" text-anchor="middle" font-size="14" fill="#64748b">5 Actores (4 roles + HIS Legado) y 10 Casos de Uso Centrales</text>
+
+  <!-- System Boundary -->
+  <rect x="250" y="90" width="600" height="680" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="250" y="90" width="600" height="40" rx="16" fill="#f1f5f9"/>
+  <text x="550" y="116" text-anchor="middle" font-size="15" font-weight="600" fill="#334155">Sistema Central HSB + FHIR R4 + Almacén Distribuido</text>
+
+  <!-- Actors Left: Sistema Sede & Admisionista & Paciente -->
+  <!-- Actor 1: Sistema Sede Legada -->
+  <g transform="translate(80, 140)">
+    <circle cx="50" cy="25" r="16" fill="#e0e7ff" stroke="#4f46e5" stroke-width="2"/>
+    <line x1="50" y1="41" x2="50" y2="75" stroke="#4f46e5" stroke-width="2"/>
+    <line x1="25" y1="55" x2="75" y2="55" stroke="#4f46e5" stroke-width="2"/>
+    <line x1="50" y1="75" x2="30" y2="105" stroke="#4f46e5" stroke-width="2"/>
+    <line x1="50" y1="75" x2="70" y2="105" stroke="#4f46e5" stroke-width="2"/>
+    <text x="50" y="125" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e1b4b">Sistema Sede</text>
+    <text x="50" y="140" text-anchor="middle" font-size="11" fill="#6366f1">(HIS / LIS Legado)</text>
+  </g>
+
+  <!-- Actor 2: Admisionista -->
+  <g transform="translate(80, 360)">
+    <circle cx="50" cy="25" r="16" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <line x1="50" y1="41" x2="50" y2="75" stroke="#2563eb" stroke-width="2"/>
+    <line x1="25" y1="55" x2="75" y2="55" stroke="#2563eb" stroke-width="2"/>
+    <line x1="50" y1="75" x2="30" y2="105" stroke="#2563eb" stroke-width="2"/>
+    <line x1="50" y1="75" x2="70" y2="105" stroke="#2563eb" stroke-width="2"/>
+    <text x="50" y="125" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e3a8a">Admisionista</text>
+    <text x="50" y="140" text-anchor="middle" font-size="11" fill="#3b82f6">(Triage y Admisión)</text>
+  </g>
+
+  <!-- Actor 3: Paciente -->
+  <g transform="translate(80, 570)">
+    <circle cx="50" cy="25" r="16" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <line x1="50" y1="41" x2="50" y2="75" stroke="#16a34a" stroke-width="2"/>
+    <line x1="25" y1="55" x2="75" y2="55" stroke="#16a34a" stroke-width="2"/>
+    <line x1="50" y1="75" x2="30" y2="105" stroke="#16a34a" stroke-width="2"/>
+    <line x1="50" y1="75" x2="70" y2="105" stroke="#16a34a" stroke-width="2"/>
+    <text x="50" y="125" text-anchor="middle" font-size="13" font-weight="bold" fill="#14532d">Paciente</text>
+    <text x="50" y="140" text-anchor="middle" font-size="11" fill="#16a34a">(Titular de HC)</text>
+  </g>
+
+  <!-- Actors Right: Médico & Auditor -->
+  <!-- Actor 4: Médico -->
+  <g transform="translate(930, 240)">
+    <circle cx="50" cy="25" r="16" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <line x1="50" y1="41" x2="50" y2="75" stroke="#d97706" stroke-width="2"/>
+    <line x1="25" y1="55" x2="75" y2="55" stroke="#d97706" stroke-width="2"/>
+    <line x1="50" y1="75" x2="30" y2="105" stroke="#d97706" stroke-width="2"/>
+    <line x1="50" y1="75" x2="70" y2="105" stroke="#d97706" stroke-width="2"/>
+    <text x="50" y="125" text-anchor="middle" font-size="13" font-weight="bold" fill="#78350f">Médico</text>
+    <text x="50" y="140" text-anchor="middle" font-size="11" fill="#d97706">(Atención Clínica)</text>
+  </g>
+
+  <!-- Actor 5: Auditor -->
+  <g transform="translate(930, 520)">
+    <circle cx="50" cy="25" r="16" fill="#f1f5f9" stroke="#475569" stroke-width="2"/>
+    <line x1="50" y1="41" x2="50" y2="75" stroke="#475569" stroke-width="2"/>
+    <line x1="25" y1="55" x2="75" y2="55" stroke="#475569" stroke-width="2"/>
+    <line x1="50" y1="75" x2="30" y2="105" stroke="#475569" stroke-width="2"/>
+    <line x1="50" y1="75" x2="70" y2="105" stroke="#475569" stroke-width="2"/>
+    <text x="50" y="125" text-anchor="middle" font-size="13" font-weight="bold" fill="#0f172a">Auditor</text>
+    <text x="50" y="140" text-anchor="middle" font-size="11" fill="#475569">(Control y Calidad)</text>
+  </g>
+
+  <!-- Use Cases inside boundary -->
+  <!-- UC1 -->
+  <g id="uc1">
+    <ellipse cx="430" cy="170" rx="130" ry="25" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="430" y="174" text-anchor="middle" font-size="12" font-weight="500" fill="#1e40af">CU1: Ingerir mensaje HL7 v2 / CSV</text>
+  </g>
+
+  <!-- UC2 -->
+  <g id="uc2">
+    <ellipse cx="680" cy="170" rx="130" ry="25" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="680" y="174" text-anchor="middle" font-size="12" font-weight="500" fill="#15803d">CU2: Validar y normalizar a FHIR R4</text>
+  </g>
+
+  <!-- UC3 -->
+  <g id="uc3">
+    <ellipse cx="550" cy="240" rx="140" ry="25" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="550" y="244" text-anchor="middle" font-size="12" font-weight="500" fill="#1e40af">CU3: Enrutar y persistir en nodo de sede</text>
+  </g>
+
+  <!-- UC4 -->
+  <g id="uc4">
+    <ellipse cx="550" cy="310" rx="150" ry="25" fill="#fef2f2" stroke="#ef4444" stroke-width="1.5"/>
+    <text x="550" y="314" text-anchor="middle" font-size="12" font-weight="bold" fill="#b91c1c">CU4: Consultar HC unificada multi-sede</text>
+  </g>
+
+  <!-- UC5 -->
+  <g id="uc5">
+    <ellipse cx="430" cy="390" rx="130" ry="25" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="430" y="394" text-anchor="middle" font-size="12" font-weight="500" fill="#1e40af">CU5: Registrar admisión y triage</text>
+  </g>
+
+  <!-- UC6 -->
+  <g id="uc6">
+    <ellipse cx="680" cy="390" rx="140" ry="25" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="680" y="394" text-anchor="middle" font-size="12" font-weight="500" fill="#b45309">CU6: Registrar diagnóstico CIE-10</text>
+  </g>
+
+  <!-- UC7 -->
+  <g id="uc7">
+    <ellipse cx="680" cy="460" rx="140" ry="25" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="680" y="464" text-anchor="middle" font-size="12" font-weight="500" fill="#b45309">CU7: Formular tecnologías y egreso</text>
+  </g>
+
+  <!-- UC8 -->
+  <g id="uc8">
+    <ellipse cx="430" cy="460" rx="130" ry="25" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+    <text x="430" y="464" text-anchor="middle" font-size="12" font-weight="500" fill="#334155">CU8: Monitorear estado de mensajes HSB</text>
+  </g>
+
+  <!-- UC9 -->
+  <g id="uc9">
+    <ellipse cx="430" cy="540" rx="130" ry="25" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="430" y="544" text-anchor="middle" font-size="12" font-weight="500" fill="#15803d">CU9: Descargar Bundle FHIR R4</text>
+  </g>
+
+  <!-- UC10 -->
+  <g id="uc10">
+    <ellipse cx="430" cy="620" rx="130" ry="25" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="430" y="624" text-anchor="middle" font-size="12" font-weight="500" fill="#15803d">CU10: Consultar accesos a su historia</text>
+  </g>
+
+  <!-- UC11 -->
+  <g id="uc11">
+    <ellipse cx="680" cy="620" rx="140" ry="25" fill="#f1f5f9" stroke="#475569" stroke-width="1.5"/>
+    <text x="680" y="624" text-anchor="middle" font-size="12" font-weight="500" fill="#0f172a">CU11: Verificar auditoría encadenada</text>
+  </g>
+
+  <!-- UC12 -->
+  <g id="uc12">
+    <ellipse cx="550" cy="700" rx="140" ry="25" fill="#f8fafc" stroke="#475569" stroke-width="1.5"/>
+    <text x="550" y="704" text-anchor="middle" font-size="12" font-weight="500" fill="#0f172a">CU12: Tablero de métricas y cobertura</text>
+  </g>
+
+  <!-- Connectors -->
+  <!-- HIS -> UC1 -->
+  <line x1="170" y1="180" x2="300" y2="170" stroke="#64748b" stroke-width="1.5"/>
+  <!-- UC1 ..> UC2 include -->
+  <line x1="560" y1="170" x2="550" y2="170" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#include)"/>
+  <!-- UC2 ..> UC3 include -->
+  <path d="M 680 195 L 680 240 L 690 240" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+  <!-- Admisionista -> UC5 & UC8 & UC4 -->
+  <line x1="170" y1="410" x2="300" y2="390" stroke="#64748b" stroke-width="1.5"/>
+  <line x1="170" y1="415" x2="300" y2="460" stroke="#64748b" stroke-width="1.5"/>
+
+  <!-- Paciente -> UC4 & UC9 & UC10 -->
+  <line x1="170" y1="620" x2="300" y2="540" stroke="#64748b" stroke-width="1.5"/>
+  <line x1="170" y1="630" x2="300" y2="620" stroke="#64748b" stroke-width="1.5"/>
+  <path d="M 170 610 Q 220 400 400 320" stroke="#64748b" stroke-width="1.5" fill="none"/>
+
+  <!-- Medico -> UC4 & UC6 & UC7 -->
+  <line x1="930" y1="290" x2="700" y2="310" stroke="#64748b" stroke-width="1.5"/>
+  <line x1="930" y1="300" x2="820" y2="390" stroke="#64748b" stroke-width="1.5"/>
+  <line x1="930" y1="310" x2="820" y2="460" stroke="#64748b" stroke-width="1.5"/>
+
+  <!-- Auditor -> UC4 & UC11 & UC12 -->
+  <path d="M 930 560 Q 860 360 700 320" stroke="#64748b" stroke-width="1.5" fill="none"/>
+  <line x1="930" y1="580" x2="820" y2="620" stroke="#64748b" stroke-width="1.5"/>
+  <line x1="930" y1="590" x2="690" y2="700" stroke="#64748b" stroke-width="1.5"/>
+</svg>

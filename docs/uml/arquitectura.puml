@@ -1,0 +1,70 @@
+@startuml Arquitectura_Plataforma_Salud
+skinparam componentStyle uml2
+
+package "Fuentes de Datos Legadas (Sedes)" {
+    [Sede 1: Sincelejo\n(HIS Meditech / HL7 ORU)] as SEDE1
+    [Sede 2: Cartagena\n(HIS Servinte / HL7 ADT)] as SEDE2
+    [Sede 3: Corozal\n(HIS SISPRO / CSV Legado)] as SEDE3
+}
+
+package "Bus de Servicios de Salud (HSB) - Puerto 8001" {
+    [API Ingesta REST\n(/hsb/hl7, /hsb/csv)] as HSB_API
+    [Validador & Reglas\n(Terminologías CIE-10/LOINC)] as VAL
+    [Motor de Idempotencia\n(Persistente por Hash/MSH-10)] as IDEMP
+    [Normalizador FHIR R4\n(Bundle Transaction PUT)] as NORM
+    [Gestor de Reintentos & DLQ\n(Exponential Backoff)] as RETRY
+}
+
+package "Capa de Servidores FHIR" {
+    [HAPI FHIR Server R4\nPuerto 8090] as HAPI
+}
+
+package "Capa de Datos Distribuida (3 Nodos PostgreSQL)" {
+    database "pg_sede1 (:5431)\nhistoria_clinica_sede1" as DB_S1
+    database "pg_sede2 (:5432)\nhistoria_clinica_sede2" as DB_S2
+    database "pg_sede3 (:5433)\nhistoria_clinica_sede3" as DB_S3
+    database "hsb_audit_db\nAuditoría Encadenada SHA-256" as DB_AUD
+}
+
+package "Capa de Aplicación y API Unificada - Puerto 5000" {
+    [API Gateway & Seguridad RBAC\n(JWT: Paciente, Admisionista, Médico, Auditor)] as API_GW
+    [Motor de Consulta Distribuida\n(Tolerancia a Fallos y Degradación)] as DIST_ENG
+    [Verificador de Integridad\n(Auditoría Hash SHA-256)] as AUD_VERIF
+}
+
+package "Vistas de Usuario (Frontend Web)" {
+    [Vista Paciente\n(Historia unificada, accesos, descarga Bundle)] as V_PAC
+    [Vista Admisionista\n(Triage, búsqueda sedes, estado HSB)] as V_ADM
+    [Vista Médico\n(Diagnóstico CIE-10, órdenes, egreso con sello)] as V_MED
+    [Vista Reporte HC & Monitoreo\n(Reporte unificado, cobertura %, estado nodos, métricas)] as V_REP
+}
+
+SEDE1 --> HSB_API : HTTP POST HL7 ORU^R01
+SEDE2 --> HSB_API : HTTP POST HL7 ADT^A01
+SEDE3 --> HSB_API : HTTP POST CSV Legado
+
+HSB_API --> IDEMP
+IDEMP --> VAL
+VAL --> NORM
+NORM --> RETRY
+
+RETRY --> HAPI : FHIR Bundle Transaction PUT
+RETRY --> DB_S1 : Persistencia Sede 1
+RETRY --> DB_S2 : Persistencia Sede 2
+RETRY --> DB_S3 : Persistencia Sede 3
+RETRY --> DB_AUD : Registro Auditoría Hash
+
+DIST_ENG ..> DB_S1 : Query paralelo
+DIST_ENG ..> DB_S2 : Query paralelo
+DIST_ENG ..> DB_S3 : Query paralelo
+DIST_ENG ..> HAPI : Consulta FHIR
+AUD_VERIF ..> DB_AUD : Verificación hash chain
+
+API_GW --> DIST_ENG
+API_GW --> AUD_VERIF
+
+V_PAC --> API_GW
+V_ADM --> API_GW
+V_MED --> API_GW
+V_REP --> API_GW
+@enduml
