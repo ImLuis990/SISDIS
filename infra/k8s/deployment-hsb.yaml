@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hsb-deployment
+  namespace: default
+  labels:
+    app: hsb-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hsb-service
+  template:
+    metadata:
+      labels:
+        app: hsb-service
+    spec:
+      containers:
+      - name: hsb-service
+        image: sisdis/hsb-service:v1.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: sisdis-config
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hsb-service
+  namespace: default
+spec:
+  selector:
+    app: hsb-service
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000
+  type: ClusterIP
