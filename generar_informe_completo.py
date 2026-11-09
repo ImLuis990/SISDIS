@@ -172,7 +172,7 @@ SECCIONES = {
     ],
     
     "ANEXOS": [
-        "Anexo 1: Repositorio Oficial Git: https://github.com/luis-rios/SISDIS (Tag v1.0).",
+        "Anexo 1: Repositorio Oficial Git: https://github.com/ImLuis990/SISDIS (Tag v1.0).",
         "Anexo 2: Comandos de Ejecución Limpia: 'docker compose down -v && docker compose up --build -d' seguido de 'bash demo_guion.sh'.",
         "Anexo 3: Credenciales de Prueba: Paciente 1001 (pass1001), Paciente 1007 (pass1007), Admisión (admision1 / admision123), Médico (medico1 / medico123), Auditor (auditor1 / auditor123).",
         "Anexo 4: Matriz de 20 Campos de Interoperabilidad documentada en docs/01_FASE1_ANALISIS_UML_DISENO.md.",

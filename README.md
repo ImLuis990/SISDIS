@@ -43,7 +43,7 @@ docker compose version
 ### 1. Clonar y levantar el stack completo
 
 ```bash
-git clone <repo-url> && cd SISDIS   # o simplemente entrar al directorio
+git clone https://github.com/ImLuis990/SISDIS.git && cd SISDIS
 docker compose down -v               # limpia estado previo
 docker compose up --build -d         # construye e inicia todos los servicios
 ```

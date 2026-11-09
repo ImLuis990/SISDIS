@@ -190,7 +190,7 @@ Los resultados cuantitativos obtenidos durante las pruebas de validación fueron
 
 ## 14. ANEXOS
 
-Anexo 1: Repositorio Oficial Git: https://github.com/luis-rios/SISDIS (Tag v1.0).
+Anexo 1: Repositorio Oficial Git: https://github.com/ImLuis990/SISDIS (Tag v1.0).
 
 Anexo 2: Comandos de Ejecución Limpia: 'docker compose down -v && docker compose up --build -d' seguido de 'bash demo_guion.sh'.
 
