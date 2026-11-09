@@ -1,0 +1,144 @@
+version: '3.8'
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SEDE 1 — Sincelejo (Hospital Regional)
+  # ─────────────────────────────────────────────────────────────────────────────
+  pg_sede1:
+    image: postgres:15-alpine
+    container_name: pg_sede1
+    environment:
+      POSTGRES_DB: historia_clinica_sede1
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5431:5432"
+    volumes:
+      - ./db/init/01_schema_comun.sql:/docker-entrypoint-initdb.d/01.sql:ro
+      - ./db/init/05_terminologia.sql:/docker-entrypoint-initdb.d/02.sql:ro
+      - ./db/init/02_datos_sede1.sql:/docker-entrypoint-initdb.d/03.sql:ro
+      - pg_sede1_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d historia_clinica_sede1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SEDE 2 — Cartagena (Clínica Mar)
+  # ─────────────────────────────────────────────────────────────────────────────
+  pg_sede2:
+    image: postgres:15-alpine
+    container_name: pg_sede2
+    environment:
+      POSTGRES_DB: historia_clinica_sede2
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/init/01_schema_comun.sql:/docker-entrypoint-initdb.d/01.sql:ro
+      - ./db/init/05_terminologia.sql:/docker-entrypoint-initdb.d/02.sql:ro
+      - ./db/init/03_datos_sede2.sql:/docker-entrypoint-initdb.d/03.sql:ro
+      - pg_sede2_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d historia_clinica_sede2"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SEDE 3 — Corozal (Centro de Salud San Juan)
+  # ─────────────────────────────────────────────────────────────────────────────
+  pg_sede3:
+    image: postgres:15-alpine
+    container_name: pg_sede3
+    environment:
+      POSTGRES_DB: historia_clinica_sede3
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./db/init/01_schema_comun.sql:/docker-entrypoint-initdb.d/01.sql:ro
+      - ./db/init/05_terminologia.sql:/docker-entrypoint-initdb.d/02.sql:ro
+      - ./db/init/04_datos_sede3.sql:/docker-entrypoint-initdb.d/03.sql:ro
+      - pg_sede3_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d historia_clinica_sede3"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SERVIDOR CENTRAL HAPI FHIR R4
+  # ─────────────────────────────────────────────────────────────────────────────
+  hapi-fhir:
+    image: hapiproject/hapi:v7.4.0
+    container_name: hapi-fhir-server
+    ports:
+      - "8090:8080"
+    environment:
+      - hapi.fhir.fhir_version=R4
+      - hapi.fhir.server_address=http://localhost:8080/fhir
+      - hapi.fhir.auto_create_placeholder_reference_targets=true
+      - hapi.fhir.allow_external_references=true
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # BUS DE SERVICIOS DE SALUD (HSB)
+  # ─────────────────────────────────────────────────────────────────────────────
+  hsb-service:
+    build:
+      context: .
+      dockerfile: hsb/Dockerfile
+    container_name: health-service-bus
+    ports:
+      - "8001:8000"
+    environment:
+      - HAPI_FHIR_URL=http://hapi-fhir:8080/fhir
+      - HSB_PORT=8000
+      - DB_SEDE1_HOST=pg_sede1
+      - DB_SEDE1_PORT=5432
+      - DB_SEDE2_HOST=pg_sede2
+      - DB_SEDE2_PORT=5432
+      - DB_SEDE3_HOST=pg_sede3
+      - DB_SEDE3_PORT=5432
+    depends_on:
+      - hapi-fhir
+      - pg_sede1
+      - pg_sede2
+      - pg_sede3
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # APLICACIÓN WEB DE LAS 4 VISTAS Y API GATEWAY
+  # ─────────────────────────────────────────────────────────────────────────────
+  web-app:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    container_name: web-app-vistas
+    ports:
+      - "5000:5000"
+    environment:
+      - APP_PORT=5000
+      - HAPI_FHIR_URL=http://hapi-fhir:8080/fhir
+      - HSB_URL=http://hsb-service:8000
+      - DB_SEDE1_HOST=pg_sede1
+      - DB_SEDE1_PORT=5432
+      - DB_SEDE2_HOST=pg_sede2
+      - DB_SEDE2_PORT=5432
+      - DB_SEDE3_HOST=pg_sede3
+      - DB_SEDE3_PORT=5432
+    depends_on:
+      - hsb-service
+    restart: unless-stopped
+
+volumes:
+  pg_sede1_data:
+  pg_sede2_data:
+  pg_sede3_data:

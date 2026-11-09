@@ -8,7 +8,7 @@ Maneja emisión y validación de tokens JWT firmados, control de permisos para l
 - auditor: consulta reportes, métricas globales y verifica integridad de la auditoría.
 """
 
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Tuple
 import datetime
 import hashlib
 import hmac
