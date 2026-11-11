@@ -215,7 +215,7 @@
             }
 
             data.mensajes.slice(0, 10).forEach(m => {
-                let badgeClass = m.status === 'entregado' ? 'bg-success' : (m.status === 'duplicado' ? 'bg-info' : 'bg-danger');
+                let badgeClass = m.status === 'entregado' ? 'bg-success' : (m.status === 'duplicado' ? 'bg-info' : (m.status === 'admitido' ? 'bg-primary' : (m.status === 'registrado' ? 'bg-warning text-dark' : 'bg-danger')));
                 tbody.innerHTML += `
                     <tr>
                         <td class="font-monospace">${m.id_control || 'N/A'}</td>

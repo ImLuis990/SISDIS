@@ -19,6 +19,8 @@ from pydantic import BaseModel
 from typing import Optional, Dict, Any, List
 import os
 import sys
+import datetime
+import time
 
 # Asegurar módulos locales
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -493,8 +495,64 @@ def admision_admitir(req: AdmisionRequest, request: Request):
     if payload and payload.get("rol") not in ["admisionista", "auditor"]:
         raise HTTPException(status_code=403, detail="Acceso denegado: solo personal de admisión puede registrar triages (403)")
 
-    id_control = f"MSG-ADM-{req.documento_id}-{int(req.sede_id)}"
+    id_control = f"MSG-ADM-{req.documento_id}-{int(req.sede_id)}-{int(time.time())}"
     actor = payload.get("sub") if payload else "admision1"
+    t_now = datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+    # --- Persistir paciente en datos simulados si no existe ---
+    doc = int(req.documento_id)
+    sid = int(req.sede_id)
+    if sid not in motor_consulta.datos_simulados_locales:
+        motor_consulta.datos_simulados_locales[sid] = {}
+    if doc not in motor_consulta.datos_simulados_locales[sid]:
+        motor_consulta.datos_simulados_locales[sid][doc] = {
+            "paciente": {
+                "documento_id": doc,
+                "nombre": f"Paciente {doc}",
+                "sexo": "M",
+                "nacimiento": None,
+                "fhir_patient_id": f"pac-{doc}"
+            },
+            "atenciones": [{
+                "atencion_id": int(time.time()),
+                "sede_id": sid,
+                "sede_nombre": motor_consulta.config_sedes.get(sid, {}).get("nombre", f"Sede {sid}"),
+                "fecha": t_now,
+                "triage": req.triage,
+                "profesional": actor,
+                "diagnosticos": [],
+                "laboratorios": []
+            }]
+        }
+    else:
+        # Paciente ya existe: agregar la atención de admisión
+        motor_consulta.datos_simulados_locales[sid][doc]["atenciones"].append({
+            "atencion_id": int(time.time()),
+            "sede_id": sid,
+            "sede_nombre": motor_consulta.config_sedes.get(sid, {}).get("nombre", f"Sede {sid}"),
+            "fecha": t_now,
+            "triage": req.triage,
+            "profesional": actor,
+            "diagnosticos": [],
+            "laboratorios": []
+        })
+
+    # --- Registrar mensaje en HSB para la tabla de mensajería ---
+    hsb_service.mensajes_db[id_control] = {
+        "id": id_control,
+        "id_control": id_control,
+        "formato": "ADM",
+        "sede_id": sid,
+        "sede": sid,
+        "documento": str(doc),
+        "paciente": str(doc),
+        "estado": "admitido",
+        "status": "admitido",
+        "triage": req.triage,
+        "motivo": req.motivo,
+        "timestamp": t_now
+    }
+
     hsb_service.registrar_evento_auditoria(
         actor=actor,
         rol="admisionista",
@@ -530,6 +588,25 @@ def medico_registrar_atencion(req: AtencionMedicoRequest, request: Request):
         tecnologia=req.tecnologia,
         egreso_destino=req.egreso
     )
+
+    # --- Registrar mensaje en HSB para la tabla de mensajería ---
+    t_now = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    id_control_med = f"MSG-MED-{req.documento_id}-{int(req.sede_id)}-{int(time.time())}"
+    hsb_service.mensajes_db[id_control_med] = {
+        "id": id_control_med,
+        "id_control": id_control_med,
+        "formato": "MED",
+        "sede_id": int(req.sede_id),
+        "sede": int(req.sede_id),
+        "documento": str(req.documento_id),
+        "paciente": str(req.documento_id),
+        "estado": "registrado",
+        "status": "registrado",
+        "cie10": req.cie10,
+        "dx_desc": req.dx_desc,
+        "timestamp": t_now
+    }
+
     hsb_service.registrar_evento_auditoria(
         actor=prof_id,
         rol="medico",
