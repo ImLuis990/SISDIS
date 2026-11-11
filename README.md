@@ -71,9 +71,9 @@ docker compose ps
 
 | Usuario | Contraseña | Rol | Acceso |
 |---|---|---|---|
-| `1001` | `pass1001` | paciente | Solo su propia historia clínica |
-| `1007` | `pass1007` | paciente | Solo su propia historia clínica |
-| `admision1` | `admision123` | admisionista | Búsqueda y admisión de pacientes |
+| `1001` | `paciente123` | paciente | Solo su propia historia clínica |
+| `1007` | `paciente123` | paciente | Solo su propia historia clínica |
+| `admision1` | `admin123` | admisionista | Búsqueda y admisión de pacientes |
 | `medico1` | `medico123` | medico | Historia completa + registro de atenciones |
 | `auditor1` | `auditor123` | auditor | Métricas globales + verificación de integridad |
 
