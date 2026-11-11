@@ -92,11 +92,19 @@ def metrics():
     """Métricas operativas del servicio web."""
     metricas_hsb = hsb_service.obtener_metricas()
     cobertura = motor_consulta.obtener_cobertura_fhir_red()
+    estado_sedes = motor_consulta.obtener_estado_sedes()
+    nodos_activos = sum(1 for s in estado_sedes.values() if s["disponible"])
     return {
         "hsb_metricas": metricas_hsb,
         "cobertura_red": cobertura,
-        "nodos_activos": 3 - len(motor_consulta.sedes_apagadas)
+        "nodos_activos": nodos_activos,
+        "sedes": estado_sedes
     }
+
+@app.get("/api/sedes/estado")
+def api_estado_sedes():
+    """Retorna la disponibilidad en tiempo real de cada contenedor de sede."""
+    return motor_consulta.obtener_estado_sedes()
 
 # -----------------------------------------------------------------------------
 # AUTENTICACIÓN Y SEGURIDAD RBAC

@@ -590,7 +590,32 @@
         iniciarSesionComo("1001", "paciente123");
         generarReporteHC();
         cargarMensajesHSB();
+        actualizarEstadoNodosRealTime();
+        setInterval(actualizarEstadoNodosRealTime, 3000);
     });
+
+    // Monitoreo en tiempo real de nodos de base de datos (Sede 1, 2 y 3)
+    async function actualizarEstadoNodosRealTime() {
+        try {
+            const resp = await fetch("/api/sedes/estado");
+            const data = await resp.json();
+            for (let sId = 1; sId <= 3; sId++) {
+                const sede = data[sId] || data[String(sId)];
+                const badge = document.getElementById(`nodo-sede${sId}-status`);
+                if (badge && sede) {
+                    if (sede.disponible) {
+                        badge.innerText = "Activo";
+                        badge.className = "fw-bold mb-1 text-success";
+                    } else {
+                        badge.innerText = "Desconectado (Degradado)";
+                        badge.className = "fw-bold mb-1 text-danger animate__animated animate__flash";
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("Error al sondear estado de sedes:", e);
+        }
+    }
 
     // Función de Inicio de Sesión / Cambio de Rol
     async function iniciarSesionComo(usuario, clave) {
