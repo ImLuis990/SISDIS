@@ -79,11 +79,16 @@
             <svg class="me-2" width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
             Plataforma de Interoperabilidad en Salud (HSB + FHIR R4)
         </a>
-        <div class="d-flex align-items-center">
-            <span class="badge bg-light text-dark me-3 py-2 px-3 fw-normal" id="session-badge">
+        <div class="d-flex align-items-center flex-wrap gap-2">
+            <span class="badge bg-light text-dark py-2 px-3 fw-normal" id="session-badge">
                 Usuario: <strong id="current-user-display">No autenticado</strong> (<span id="current-role-display">Ninguno</span>)
             </span>
-            <button class="btn btn-outline-light btn-sm" onclick="cerrarSesion()">Cambiar Rol</button>
+            <span class="badge bg-success py-2 px-3 fw-semibold" id="badge-2fa-status">
+                <svg class="me-1" width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"></path></svg>
+                2FA Activo
+            </span>
+            <button class="btn btn-outline-light btn-sm" onclick="abrirModalLoginManual()">Iniciar Sesión</button>
+            <button class="btn btn-warning btn-sm text-dark fw-bold" onclick="probar2FAInteractivo()">🔐 Probar 2FA</button>
         </div>
     </div>
 </nav>
@@ -1004,6 +1009,119 @@
     </div>
 </div>
 
+<!-- Modal de Autenticación en Dos Pasos (2FA) -->
+<div class="modal fade" id="modal2FA" tabindex="-1" aria-labelledby="modal2FALabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);">
+                <div class="d-flex align-items-center">
+                    <div class="bg-white text-primary rounded-circle p-2 me-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 44px; height: 44px;">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0" id="modal2FALabel">Verificación en Dos Pasos (2FA)</h5>
+                        <small class="opacity-75">Control de Acceso Clínico — Ley 1581 / Res. 866</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <!-- Paso 1 Verificado -->
+                <div class="alert alert-success d-flex align-items-center py-2 px-3 mb-3 border-0 bg-success-subtle text-success-emphasis rounded-3">
+                    <svg class="me-2 flex-shrink-0" width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                    <div>
+                        <strong>Paso 1 Verificado:</strong> Contraseña válida para <span id="mfa-modal-nombre" class="fw-bold">Usuario</span> (<span id="mfa-modal-rol" class="badge bg-primary">ROL</span>)
+                    </div>
+                </div>
+
+                <p class="text-muted small mb-3">
+                    Para acceder a la plataforma clínica, ingrese el código temporal de 6 dígitos emitido a su dispositivo o desde su aplicación autenticadora (Google Authenticator / TOTP RFC 6238):
+                </p>
+
+                <!-- Tarjeta de Simulación para Sustentación / Demo -->
+                <div class="card border-primary-subtle bg-light mb-3">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                📲 Canal: SMS / Notificación Móvil
+                            </span>
+                            <span class="badge bg-secondary-subtle text-secondary small" id="mfa-modal-canal">
+                                +57 *** ***
+                            </span>
+                        </div>
+                        <div class="text-center my-2">
+                            <div class="small text-muted mb-1">Código de verificación para esta sesión:</div>
+                            <span class="display-6 fw-bold text-primary font-monospace" id="mfa-codigo-display" style="letter-spacing: 4px;">------</span>
+                        </div>
+                        <div class="d-flex justify-content-center gap-2 mt-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="copiarPegarCodigo2FA()">
+                                📋 Usar este código
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="solicitarNuevoCodigo2FA()">
+                                🔄 Reenviar nuevo código
+                            </button>
+                        </div>
+                        <div class="text-center mt-2 border-top pt-2">
+                            <small class="text-muted" style="font-size: 0.75rem;">
+                                🔑 Secreto TOTP Base32 (RFC 6238): <code id="mfa-secret-display">JBSWY3DPEHPK3PXP</code>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input de 6 dígitos -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold small text-muted text-uppercase mb-2 text-center d-block">
+                        Código de 6 dígitos (Paso 2)
+                    </label>
+                    <input type="text" class="form-control form-control-lg text-center font-monospace fw-bold fs-3" 
+                           id="input-codigo-2fa" maxlength="6" placeholder="000000" autocomplete="off"
+                           style="letter-spacing: 8px;">
+                </div>
+
+                <!-- Alerta de Error -->
+                <div class="alert alert-danger py-2 px-3 small d-none" id="mfa-error-alert" role="alert">
+                    <span id="mfa-error-text">Código incorrecto o expirado</span>
+                </div>
+            </div>
+            <div class="modal-footer bg-light border-0 py-3 px-4">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary fw-bold px-4" id="btn-confirmar-2fa" onclick="confirmarSegundoPaso2FA()">
+                    🔐 Validar y Acceder
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Inicio de Sesión Manual -->
+<div class="modal fade" id="modalLoginManual" tabindex="-1" aria-labelledby="modalLoginManualLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold" id="modalLoginManualLabel">🔐 Iniciar Sesión con Credenciales</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Usuario o Documento:</label>
+                    <input type="text" class="form-control" id="login-input-usuario" placeholder="Ej: medico1, 1001, admision1">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Contraseña:</label>
+                    <input type="password" class="form-control" id="login-input-clave" placeholder="Contraseña">
+                    <small class="text-muted">Prueba: paciente123, admin123, medico123, auditor123</small>
+                </div>
+                <div class="alert alert-danger py-2 px-3 small d-none" id="login-manual-error"></div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary fw-bold" onclick="ejecutarLoginManual()">Continuar al Paso 2 (2FA) →</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Bootstrap 5 JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -1012,14 +1130,36 @@
     let currentUser = "1001";
     let currentRole = "paciente";
     let tokenJWT = "";
+    let currentTempToken = "";
+    let currentCodigoSimulado = "";
+    let modal2FAInstance = null;
+    let modalLoginManualInstance = null;
 
     // Inicialización al cargar la página
     document.addEventListener("DOMContentLoaded", function() {
-        iniciarSesionComo("1001", "paciente123");
+        iniciarSesionComo("1001", "paciente123", true);
         generarReporteHC();
         cargarMensajesHSB();
         actualizarEstadoNodosRealTime();
         setInterval(actualizarEstadoNodosRealTime, 3000);
+
+        const input2FA = document.getElementById("input-codigo-2fa");
+        if (input2FA) {
+            input2FA.addEventListener("keyup", function(e) {
+                if (e.key === "Enter") {
+                    confirmarSegundoPaso2FA();
+                }
+            });
+        }
+
+        const inputClaveManual = document.getElementById("login-input-clave");
+        if (inputClaveManual) {
+            inputClaveManual.addEventListener("keyup", function(e) {
+                if (e.key === "Enter") {
+                    ejecutarLoginManual();
+                }
+            });
+        }
     });
 
     // Monitoreo en tiempo real de nodos de base de datos (Sede 1, 2 y 3)
@@ -1045,8 +1185,8 @@
         }
     }
 
-    // Función de Inicio de Sesión / Cambio de Rol
-    async function iniciarSesionComo(usuario, clave) {
+    // Función de Inicio de Sesión / Cambio de Rol con Soporte 2FA
+    async function iniciarSesionComo(usuario, clave, silencioso = false) {
         try {
             const resp = await fetch("/api/auth/login", {
                 method: "POST",
@@ -1054,29 +1194,219 @@
                 body: JSON.stringify({usuario: usuario, clave: clave})
             });
             const data = await resp.json();
-            if (data.token) {
-                tokenJWT = data.token;
-                currentUser = data.usuario;
-                currentRole = data.rol;
 
-                document.getElementById("current-user-display").innerText = data.nombre;
-                document.getElementById("current-role-display").innerText = data.rol.toUpperCase();
+            if (data.requiere_2fa) {
+                currentTempToken = data.temp_token;
+                currentCodigoSimulado = data.codigo_simulado;
 
-                // Cargar datos según el rol
-                if (data.rol === "paciente") {
-                    cargarHistoriaPaciente(data.documento_id || 1001);
-                } else if (data.rol === "medico") {
-                    document.getElementById("med-buscar-doc").value = "1001";
-                    medicoConsultarHC();
+                if (silencioso) {
+                    // Autoverificación directa en segundo plano para carga inicial sin bloqueo
+                    await verificarSegundoPasoDirecto(data.temp_token, data.codigo_simulado);
+                    return;
                 }
+
+                // Desplegar Modal de 2FA interactivo
+                abrirModal2FA(data);
+            } else if (data.token) {
+                aplicarSesionAutenticada(data);
             }
         } catch (e) {
             console.error("Error al iniciar sesión:", e);
         }
     }
 
+    function abrirModal2FA(data) {
+        document.getElementById("mfa-modal-nombre").innerText = data.nombre || data.usuario;
+        document.getElementById("mfa-modal-rol").innerText = (data.rol || "").toUpperCase();
+        document.getElementById("mfa-codigo-display").innerText = data.codigo_simulado || "------";
+        document.getElementById("mfa-modal-canal").innerText = data.telefono_enmascarado || data.email_enmascarado || "Dispositivo Registrado";
+        document.getElementById("mfa-secret-display").innerText = data.secret_2fa || "";
+        document.getElementById("input-codigo-2fa").value = "";
+        document.getElementById("mfa-error-alert").classList.add("d-none");
+
+        if (!modal2FAInstance) {
+            const el = document.getElementById("modal2FA");
+            modal2FAInstance = new bootstrap.Modal(el);
+        }
+        modal2FAInstance.show();
+        setTimeout(() => {
+            const inp = document.getElementById("input-codigo-2fa");
+            if (inp) inp.focus();
+        }, 400);
+    }
+
+    function copiarPegarCodigo2FA() {
+        const inp = document.getElementById("input-codigo-2fa");
+        inp.value = currentCodigoSimulado;
+        inp.focus();
+    }
+
+    async function solicitarNuevoCodigo2FA() {
+        try {
+            const resp = await fetch("/api/auth/reenviar-2fa", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({temp_token: currentTempToken})
+            });
+            const data = await resp.json();
+            if (resp.ok) {
+                currentTempToken = data.temp_token;
+                currentCodigoSimulado = data.codigo_simulado;
+                document.getElementById("mfa-codigo-display").innerText = data.codigo_simulado;
+                document.getElementById("input-codigo-2fa").value = "";
+                document.getElementById("mfa-error-alert").classList.add("d-none");
+            } else {
+                mostrarErrorMFA(data.detail || "Error al solicitar nuevo código");
+            }
+        } catch (e) {
+            mostrarErrorMFA("Error de red al reenviar código 2FA");
+        }
+    }
+
+    async function confirmarSegundoPaso2FA() {
+        const codigo = document.getElementById("input-codigo-2fa").value.trim();
+        if (!codigo || codigo.length !== 6) {
+            mostrarErrorMFA("Ingrese el código numérico de 6 dígitos.");
+            return;
+        }
+
+        try {
+            const resp = await fetch("/api/auth/verificar-2fa", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({temp_token: currentTempToken, codigo_2fa: codigo})
+            });
+            const data = await resp.json();
+            if (resp.ok && data.token) {
+                if (modal2FAInstance) {
+                    modal2FAInstance.hide();
+                }
+                aplicarSesionAutenticada(data);
+            } else {
+                mostrarErrorMFA(data.detail || "Código de verificación incorrecto o expirado");
+            }
+        } catch (e) {
+            mostrarErrorMFA("Error al validar el segundo factor");
+        }
+    }
+
+    function mostrarErrorMFA(msg) {
+        const box = document.getElementById("mfa-error-alert");
+        document.getElementById("mfa-error-text").innerText = msg;
+        box.classList.remove("d-none");
+    }
+
+    async function verificarSegundoPasoDirecto(tempToken, codigo) {
+        try {
+            const resp = await fetch("/api/auth/verificar-2fa", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({temp_token: tempToken, codigo_2fa: codigo})
+            });
+            const data = await resp.json();
+            if (data.token) {
+                aplicarSesionAutenticada(data);
+            }
+        } catch (e) {
+            console.error("Error en autoverificación 2FA:", e);
+        }
+    }
+
+    function aplicarSesionAutenticada(data) {
+        tokenJWT = data.token;
+        currentUser = data.usuario;
+        currentRole = data.rol;
+
+        document.getElementById("current-user-display").innerText = data.nombre;
+        document.getElementById("current-role-display").innerText = data.rol.toUpperCase();
+
+        const badge2FA = document.getElementById("badge-2fa-status");
+        if (badge2FA) {
+            badge2FA.className = "badge bg-success py-2 px-3 fw-semibold";
+            badge2FA.innerHTML = `<svg class="me-1" width="14" height="14" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"></path></svg>2FA Verificado`;
+        }
+
+        // Navegación automática según el rol autenticado
+        if (data.rol === "paciente") {
+            activarPestana("tab-paciente");
+            cargarHistoriaPaciente(data.documento_id || 1001);
+        } else if (data.rol === "admisionista") {
+            activarPestana("tab-admisionista");
+        } else if (data.rol === "medico") {
+            activarPestana("tab-medico");
+            document.getElementById("med-buscar-doc").value = "1001";
+            medicoConsultarHC();
+        } else if (data.rol === "auditor") {
+            activarPestana("tab-monitoreo");
+        }
+    }
+
+    function activarPestana(tabId) {
+        const tabEl = document.getElementById(tabId);
+        if (tabEl) {
+            const tab = bootstrap.Tab.getOrCreateInstance(tabEl);
+            tab.show();
+        }
+    }
+
+    function probar2FAInteractivo() {
+        iniciarSesionComo(currentUser || "medico1", currentUser === "1001" || currentUser === "1007" ? "paciente123" : (currentUser === "admision1" ? "admin123" : (currentUser === "auditor1" ? "auditor123" : "medico123")), false);
+    }
+
+    function abrirModalLoginManual() {
+        document.getElementById("login-input-usuario").value = "";
+        document.getElementById("login-input-clave").value = "";
+        document.getElementById("login-manual-error").classList.add("d-none");
+        if (!modalLoginManualInstance) {
+            const el = document.getElementById("modalLoginManual");
+            modalLoginManualInstance = new bootstrap.Modal(el);
+        }
+        modalLoginManualInstance.show();
+    }
+
+    async function ejecutarLoginManual() {
+        const usuario = document.getElementById("login-input-usuario").value.trim();
+        const clave = document.getElementById("login-input-clave").value.trim();
+        const errBox = document.getElementById("login-manual-error");
+
+        if (!usuario || !clave) {
+            errBox.innerText = "Ingrese usuario y contraseña";
+            errBox.classList.remove("d-none");
+            return;
+        }
+
+        try {
+            const resp = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({usuario: usuario, clave: clave})
+            });
+            const data = await resp.json();
+            if (!resp.ok) {
+                errBox.innerText = data.detail || "Credenciales incorrectas";
+                errBox.classList.remove("d-none");
+                return;
+            }
+
+            if (modalLoginManualInstance) {
+                modalLoginManualInstance.hide();
+            }
+
+            if (data.requiere_2fa) {
+                currentTempToken = data.temp_token;
+                currentCodigoSimulado = data.codigo_simulado;
+                abrirModal2FA(data);
+            } else if (data.token) {
+                aplicarSesionAutenticada(data);
+            }
+        } catch (e) {
+            errBox.innerText = "Error de conexión al servidor";
+            errBox.classList.remove("d-none");
+        }
+    }
+
     function cerrarSesion() {
-        alert("Seleccione uno de los botones de 'Acceso Rápido por Rol' en la barra superior para cambiar su perfil.");
+        abrirModalLoginManual();
     }
 
     // Cargar Historia Paciente (Vista 1)

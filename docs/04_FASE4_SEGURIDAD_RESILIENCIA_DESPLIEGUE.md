@@ -36,6 +36,20 @@ Acceso denegado: el paciente no puede acceder a historias de otros pacientes (40
 ```
 Adicionalmente, se registra un evento de auditoría con actor `1001`, acción `ACCESO_NO_AUTORIZADO` y resultado `DENEGADO`.
 
+### 1.3 Autenticación en Dos Pasos (2FA / TOTP RFC 6238)
+Para robustecer la protección de la información clínica y dar estricto cumplimiento a la Resolución 866 y la Ley 1581 de 2012, se implementó un esquema de autenticación multifactorial (2FA) obligatorio:
+
+1. **Factor 1 (Conocimiento):** Validación de credenciales principales (`usuario` y `clave`) comparando el hash criptográfico SHA-256.
+2. **Factor 2 (Posesión):** Desafío temporal mediante código de 6 dígitos numéricos emitido a través de:
+   - **OTP Dinámico de Sesión:** Con token firmado de expiración corta (5 minutos).
+   - **Algoritmo Estándar TOTP (RFC 6238 / RFC 4226):** Compatible con aplicaciones autenticadoras de la industria (*Google Authenticator*, *Microsoft Authenticator* o *FreeOTP*) empleando secretos Base32 dedicados por usuario.
+3. **Flujo de la API REST:**
+   - `POST /api/auth/login`: Valida el Factor 1 y emite un `temp_token` con el desafío 2FA.
+   - `POST /api/auth/verificar-2fa`: Valida el Factor 2 y emite el token JWT definitivo con el claim `mfa_verificado: true`.
+   - `POST /api/auth/reenviar-2fa`: Regenera el código OTP temporal ante caducidad.
+   - `GET /api/auth/2fa/info/{usuario}`: Provee el secreto Base32 y URI `otpauth://` para enrolamiento en dispositivos móviles.
+4. **Trazabilidad en Auditoría Inmutable:** Cada paso del ciclo de vida de autenticación genera registros encadenados por hash: `LOGIN_PASO1_OK`, `LOGIN_2FA_EXITOSO`, y `LOGIN_2FA_FALLIDO`.
+
 ---
 
 ## 2. Auditoría Inmutable Encadenada por Hash SHA-256

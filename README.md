@@ -190,7 +190,7 @@ python3 -m unittest discover -s tests -v
 SISDIS/
 ├── app/                        # Web App FastAPI (puerto 5000)
 │   ├── main.py                 # API Gateway + vistas
-│   ├── seguridad.py            # JWT + RBAC
+│   ├── seguridad.py            # JWT + RBAC + 2FA (TOTP RFC 6238 / OTP)
 │   ├── consulta_unificada.py   # Motor de consulta distribuida
 │   ├── verificador_auditoria.py
 │   ├── templates/index.html    # 4 vistas Bootstrap 5
@@ -228,6 +228,7 @@ SISDIS/
 
 | Decisión | Alternativa considerada | Por qué se eligió |
 |---|---|---|
+| Autenticación en Dos Pasos (2FA) | SMS Gateway de pago / Solo contraseña | TOTP RFC 6238 en Python puro + OTP dinámico de sesión; compatible con Google Authenticator y demostración autónoma |
 | HMAC-SHA256 JWT propio | PyJWT / python-jose | Sin dependencias externas; control total sobre claims |
 | Idempotencia en memoria | Redis / PostgreSQL | Simplicidad; para producción se externalizaría a BD |
 | Reintento exponencial (1s, 2s, 4s, 8s) | Circuit breaker completo | Equilibrio entre resiliencia y complejidad |

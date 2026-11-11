@@ -50,6 +50,14 @@ hsb_service = HSBService(ref_csv_path=ref_csv_path)
 class LoginRequest(BaseModel):
     usuario: str
     clave: str
+    codigo_2fa: Optional[str] = None
+
+class Verificar2FARequest(BaseModel):
+    temp_token: str
+    codigo_2fa: str
+
+class Reenviar2FARequest(BaseModel):
+    temp_token: str
 
 class AdmisionRequest(BaseModel):
     documento_id: int
@@ -111,21 +119,105 @@ def api_estado_sedes():
 # -----------------------------------------------------------------------------
 @app.post("/api/auth/login")
 def login(req: LoginRequest):
-    """Autentica al usuario y devuelve el token JWT con su rol asignado."""
-    auth = GestorSeguridad.autenticar_usuario(req.usuario, req.clave)
-    if not auth:
+    """
+    Autenticación en dos pasos (2FA):
+    - Si se envía codigo_2fa: valida ambos factores directamente.
+    - Si NO se envía codigo_2fa: valida contraseña (Paso 1) y genera desafío con temp_token (Paso 2).
+    """
+    if req.codigo_2fa:
+        auth = GestorSeguridad.autenticar_con_ambos_factores(req.usuario, req.clave, req.codigo_2fa)
+        if not auth:
+            hsb_service.registrar_evento_auditoria(
+                actor=req.usuario,
+                rol="desconocido",
+                accion="LOGIN_2FA_DIRECTO_FALLIDO",
+                sede_id=0,
+                recurso="SISTEMA",
+                detalle=f"Fallo en autenticación directa 2FA para usuario {req.usuario}",
+                resultado="DENEGADO"
+            )
+            raise HTTPException(status_code=401, detail="Credenciales o código 2FA incorrectos")
+
+        hsb_service.registrar_evento_auditoria(
+            actor=req.usuario,
+            rol=auth["rol"],
+            accion="LOGIN_2FA_EXITOSO",
+            sede_id=0,
+            recurso="SISTEMA",
+            detalle=f"Inicio de sesión exitoso con 2FA completado como {auth['rol']}",
+            resultado="EXITOSO"
+        )
+        return auth
+
+    desafio = GestorSeguridad.iniciar_login_2fa(req.usuario, req.clave)
+    if not desafio:
+        hsb_service.registrar_evento_auditoria(
+            actor=req.usuario,
+            rol="desconocido",
+            accion="LOGIN_FALLIDO_PASO1",
+            sede_id=0,
+            recurso="SISTEMA",
+            detalle=f"Intento de autenticación fallido para {req.usuario}: contraseña incorrecta",
+            resultado="DENEGADO"
+        )
         raise HTTPException(status_code=401, detail="Credenciales incorrectas")
-    
+
     hsb_service.registrar_evento_auditoria(
         actor=req.usuario,
-        rol=auth["rol"],
-        accion="LOGIN",
+        rol=desafio["rol"],
+        accion="LOGIN_PASO1_OK",
         sede_id=0,
         recurso="SISTEMA",
-        detalle=f"Inicio de sesión exitoso como {auth['rol']}",
+        detalle=f"Paso 1 completado para {req.usuario} ({desafio['rol']}). Desafío 2FA emitido.",
+        resultado="EXITOSO"
+    )
+    return desafio
+
+@app.post("/api/auth/verificar-2fa")
+def api_verificar_2fa(req: Verificar2FARequest):
+    """
+    Paso 2 de autenticación:
+    Valida el código de 6 dígitos (OTP o TOTP RFC 6238) y emite el token JWT definitivo.
+    """
+    exito, mensaje, auth = GestorSeguridad.verificar_segundo_paso_2fa(req.temp_token, req.codigo_2fa)
+    if not exito or not auth:
+        hsb_service.registrar_evento_auditoria(
+            actor="2FA_DESAFIO",
+            rol="desconocido",
+            accion="LOGIN_2FA_FALLIDO",
+            sede_id=0,
+            recurso="SISTEMA",
+            detalle=f"Fallo en verificación 2FA: {mensaje}",
+            resultado="DENEGADO"
+        )
+        raise HTTPException(status_code=401, detail=mensaje)
+
+    hsb_service.registrar_evento_auditoria(
+        actor=auth["usuario"],
+        rol=auth["rol"],
+        accion="LOGIN_2FA_EXITOSO",
+        sede_id=0,
+        recurso="SISTEMA",
+        detalle=f"Segundo factor (2FA) superado con éxito por {auth['usuario']} ({auth['rol']}). Acceso otorgado.",
         resultado="EXITOSO"
     )
     return auth
+
+@app.post("/api/auth/reenviar-2fa")
+def api_reenviar_2fa(req: Reenviar2FARequest):
+    """Regenera y emite un nuevo código OTP para el desafío temporal."""
+    resultado = GestorSeguridad.regenerar_codigo_desafio(req.temp_token)
+    if not resultado:
+        raise HTTPException(status_code=400, detail="Token temporal de 2FA inválido o expirado")
+    return resultado
+
+@app.get("/api/auth/2fa/info/{usuario}")
+def api_info_2fa(usuario: str):
+    """Retorna la configuración 2FA y URI TOTP para vincular con Google Authenticator."""
+    info = GestorSeguridad.obtener_info_2fa_usuario(usuario)
+    if not info:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return info
 
 # -----------------------------------------------------------------------------
 # VISTA 1: PACIENTE
