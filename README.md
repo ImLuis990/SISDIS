@@ -58,7 +58,7 @@ docker compose ps
 
 | Servicio | URL | Descripción |
 |---|---|---|
-| Web App | http://localhost:5000 | Interfaz gráfica con 4 vistas |
+| Web App | http://localhost:5000 (o IP host: http://10.0.2.15:5000) | Interfaz gráfica con 4 vistas |
 | HSB Service | http://localhost:8001/health | Health Service Bus API |
 | HAPI FHIR | http://localhost:8090/fhir/metadata | Servidor FHIR R4 |
 | PostgreSQL Sede 1 | localhost:5431 | Sincelejo |
