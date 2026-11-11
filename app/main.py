@@ -71,6 +71,10 @@ class AtencionMedicoRequest(BaseModel):
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     """Renderiza la aplicación de las 4 vistas por rol."""
+    index_file = os.path.join(templates_dir, "index.html")
+    if os.path.exists(index_file):
+        with open(index_file, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/health")

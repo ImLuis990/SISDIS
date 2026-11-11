@@ -118,7 +118,8 @@ services:
       - DB_SEDE3_PORT=5432
       - DB_SEDE3_DB=historia_clinica_sede3
       - DB_USER=postgres
-      - DB_PASSWORD=postgres
+    volumes:
+      - .:/app
     depends_on:
       pg_sede1:
         condition: service_healthy
@@ -160,7 +161,8 @@ services:
       - DB_SEDE3_PORT=5432
       - DB_SEDE3_DB=historia_clinica_sede3
       - DB_USER=postgres
-      - DB_PASSWORD=postgres
+    volumes:
+      - .:/app
     depends_on:
       hsb-service:
         condition: service_healthy
