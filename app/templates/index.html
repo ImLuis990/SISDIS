@@ -447,6 +447,434 @@
                     </div>
                 </div>
 
+                
+                <!-- TABLA OFICIAL: 57 CAMPOS DE LA RESOLUCIÓN 866 DE 2021 -->
+                <div class="card card-custom p-3 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <h6 class="fw-bold text-primary mb-0">Matriz de Trazabilidad: 57 Campos Clínicos (Resolución 866 de 2021 - MinSalud)</h6>
+                            <p class="text-muted small mb-0">Mapeo exhaustivo del Resumen Digital de Atención (RDA) hacia tablas relacionales y recursos HL7 FHIR R4.</p>
+                        </div>
+                        <span class="badge bg-success p-2">57 / 57 Campos Mapeados</span>
+                    </div>
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-sm table-hover align-middle table-striped small mb-0">
+                            <thead class="table-dark sticky-top">
+                                <tr>
+                                    <th style="width: 5%;">#</th>
+                                    <th style="width: 32%;">Elemento de Dato Clínico</th>
+                                    <th style="width: 13%;">Tabla BD</th>
+                                    <th style="width: 15%;">Campo en BD</th>
+                                    <th style="width: 20%;">Recurso FHIR R4</th>
+                                    <th style="width: 15%;">Catálogo / Formato</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+    <td class="text-center fw-bold">1</td>
+    <td>Tipo de identificación del usuario</td>
+    <td><code>`usuario`</code></td>
+    <td><code>`tipo_documento`</code></td>
+    <td><span class="badge bg-primary">`Patient.identifier[0].type`</span></td>
+    <td><small class="text-muted">CÓDIGO (CC, TI, RC, CE, PA)</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">2</td>
+    <td>Número de identificación del usuario</td>
+    <td><code>`usuario`</code></td>
+    <td><code>`documento_id`</code></td>
+    <td><span class="badge bg-primary">`Patient.identifier[0].value`</span></td>
+    <td><small class="text-muted">TEXTO / NÚMERO</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">3</td>
+    <td>Primer apellido del usuario</td>
+    <td><code>`usuario`</code></td>
+    <td><code>`primer_apellido`</code></td>
+    <td><span class="badge bg-primary">`Patient.name[0].family`</span></td>
+    <td><small class="text-muted">TEXTO</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">4</td>
+    <td>Segundo apellido del usuario</td>
+    <td><code>`usuario`</code></td>
+    <td><code>`nombre_completo`</code></td>
+    <td><span class="badge bg-primary">`Patient.name[0].family (ext)`</span></td>
+    <td><small class="text-muted">TEXTO</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">5</td>
+    <td>Primer nombre del usuario</td>
+    <td><code>`usuario`</code></td>
+    <td><code>`primer_nombre`</code></td>
+    <td><span class="badge bg-primary">`Patient.name[0].given[0]`</span></td>
+    <td><small class="text-muted">TEXTO</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">6</td>
+    <td>Segundo nombre del usuario</td>
+    <td><code>`usuario`</code></td>
+    <td><code>`nombre_completo`</code></td>
+    <td><span class="badge bg-primary">`Patient.name[0].given[1]`</span></td>
+    <td><small class="text-muted">TEXTO</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">7</td>
+    <td>Fecha de nacimiento</td>
+    <td><code>`usuario`</code></td>
+    <td><code>`fecha_nacimiento`</code></td>
+    <td><span class="badge bg-primary">`Patient.birthDate`</span></td>
+    <td><small class="text-muted">DATE (AAAA-MM-DD)</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">8</td>
+    <td>Sexo biológico</td>
+    <td><code>`usuario`</code></td>
+    <td><code>`sexo`</code></td>
+    <td><span class="badge bg-primary">`Patient.gender`</span></td>
+    <td><small class="text-muted">male</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">9</td>
+    <td>Identidad de género</td>
+    <td><code>`usuario`</code></td>
+    <td><code>`genero`</code></td>
+    <td><span class="badge bg-primary">`Patient.extension(gender-identity)`</span></td>
+    <td><small class="text-muted">CÓDIGO</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">10</td>
+    <td>Nacionalidad</td>
+    <td><code>`usuario`</code></td>
+    <td><code>`pais_nacionalidad`</code></td>
+    <td><span class="badge bg-primary">`Patient.extension(nationality)`</span></td>
+    <td><small class="text-muted">ISO-3166 (Colombia)</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">11</td>
+    <td>País de residencia habitual</td>
+    <td><code>`usuario`</code></td>
+    <td><code>`pais_residencia`</code></td>
+    <td><span class="badge bg-primary">`Patient.address.country`</span></td>
+    <td><small class="text-muted">ISO-3166 (Colombia)</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">12</td>
+    <td>Municipio de residencia habitual</td>
+    <td><code>`usuario`</code></td>
+    <td><code>`municipio_residencia`</code></td>
+    <td><span class="badge bg-primary">`Patient.address.city`</span></td>
+    <td><small class="text-muted">DIVIPOLA</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">13</td>
+    <td>Zona de residencia habitual</td>
+    <td><code>`usuario`</code></td>
+    <td><code>`zona_residencia`</code></td>
+    <td><span class="badge bg-primary">`Patient.address.extension(zone)`</span></td>
+    <td><small class="text-muted">Urbana</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">14</td>
+    <td>Pertenencia étnica</td>
+    <td><code>`usuario`</code></td>
+    <td><code>`etnia`</code></td>
+    <td><span class="badge bg-primary">`Patient.extension(ethnicity)`</span></td>
+    <td><small class="text-muted">CÓDIGO MINSALUD</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">15</td>
+    <td>Comunidad o pueblo étnico</td>
+    <td><code>`usuario`</code></td>
+    <td><code>`comunidad_etnica`</code></td>
+    <td><span class="badge bg-primary">`Patient.extension(ethnic-group)`</span></td>
+    <td><small class="text-muted">TEXTO</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">16</td>
+    <td>Categoría de discapacidad</td>
+    <td><code>`usuario`</code></td>
+    <td><code>`categoria_discapacidad`</code></td>
+    <td><span class="badge bg-primary">`Patient.extension(disability)`</span></td>
+    <td><small class="text-muted">CÓDIGO</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">17</td>
+    <td>Voluntad anticipada</td>
+    <td><code>`usuario`</code></td>
+    <td><code>`voluntad_anticipada`</code></td>
+    <td><span class="badge bg-primary">`Consent / Patient.extension`</span></td>
+    <td><small class="text-muted">BOOLEANO (true/false)</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">18</td>
+    <td>Código de habilitación prestador (REPS)</td>
+    <td><code>`atencion`</code></td>
+    <td><code>`entidad_salud`</code></td>
+    <td><span class="badge bg-secondary">`Organization.identifier / serviceProvider`</span></td>
+    <td><small class="text-muted">REPS 12 dígitos</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">19</td>
+    <td>Sede del prestador de servicios</td>
+    <td><code>`atencion`</code></td>
+    <td><code>`sede_id`</code></td>
+    <td><span class="badge bg-info text-dark">`Location.name / Encounter.location`</span></td>
+    <td><small class="text-muted">CÓDIGO SEDE (1, 2, 3)</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">20</td>
+    <td>Tipo de identificación del profesional</td>
+    <td><code>`profesional_salud`</code></td>
+    <td><code>`profesional_id`</code></td>
+    <td><span class="badge bg-secondary">`Practitioner.identifier.type`</span></td>
+    <td><small class="text-muted">CÓDIGO</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">21</td>
+    <td>Número de identificación profesional</td>
+    <td><code>`profesional_salud`</code></td>
+    <td><code>`profesional_id`</code></td>
+    <td><span class="badge bg-secondary">`Practitioner.identifier.value`</span></td>
+    <td><small class="text-muted">TEXTO</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">22</td>
+    <td>Nombres y apellidos del profesional</td>
+    <td><code>`profesional_salud`</code></td>
+    <td><code>`nombre_completo`</code></td>
+    <td><span class="badge bg-secondary">`Practitioner.name.text`</span></td>
+    <td><small class="text-muted">TEXTO</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">23</td>
+    <td>Identificador de la atención asistencial</td>
+    <td><code>`atencion`</code></td>
+    <td><code>`atencion_id`</code></td>
+    <td><span class="badge bg-info text-dark">`Encounter.id`</span></td>
+    <td><small class="text-muted">ID determinista (enc-<id>)</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">24</td>
+    <td>Fecha y hora de inicio de atención</td>
+    <td><code>`atencion`</code></td>
+    <td><code>`fecha_ingreso`</code></td>
+    <td><span class="badge bg-info text-dark">`Encounter.period.start`</span></td>
+    <td><small class="text-muted">DATETIME ISO-8601</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">25</td>
+    <td>Fecha y hora de egreso de atención</td>
+    <td><code>`egreso`</code></td>
+    <td><code>`fecha_egreso`</code></td>
+    <td><span class="badge bg-info text-dark">`Encounter.period.end`</span></td>
+    <td><small class="text-muted">DATETIME ISO-8601</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">26</td>
+    <td>Modalidad de atención</td>
+    <td><code>`atencion`</code></td>
+    <td><code>`modalidad_entrega`</code></td>
+    <td><span class="badge bg-info text-dark">`Encounter.class`</span></td>
+    <td><small class="text-muted">Presencial</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">27</td>
+    <td>Entorno de la atención</td>
+    <td><code>`atencion`</code></td>
+    <td><code>`entorno_atencion`</code></td>
+    <td><span class="badge bg-info text-dark">`Encounter.serviceType`</span></td>
+    <td><small class="text-muted">Ambulatorio</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">28</td>
+    <td>Vía de ingreso a la atención</td>
+    <td><code>`atencion`</code></td>
+    <td><code>`via_ingreso`</code></td>
+    <td><span class="badge bg-info text-dark">`Encounter.hospitalization.admitSource`</span></td>
+    <td><small class="text-muted">Consulta Externa</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">29</td>
+    <td>Causa que motiva la atención</td>
+    <td><code>`atencion`</code></td>
+    <td><code>`causa_atencion`</code></td>
+    <td><span class="badge bg-info text-dark">`Encounter.reasonCode`</span></td>
+    <td><small class="text-muted">Enfermedad general</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">30</td>
+    <td>Fecha y hora del triage</td>
+    <td><code>`atencion`</code></td>
+    <td><code>`fecha_triage`</code></td>
+    <td><span class="badge bg-info text-dark">`Encounter.extension(triage-date)`</span></td>
+    <td><small class="text-muted">DATETIME ISO-8601</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">31</td>
+    <td>Clasificación del triage</td>
+    <td><code>`atencion`</code></td>
+    <td><code>`clasificacion_triage`</code></td>
+    <td><span class="badge bg-info text-dark">`Encounter.priority`</span></td>
+    <td><small class="text-muted">Nivel I a V (1, 2, 3, 4, 5)</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">32</td>
+    <td>Estado del encuentro asistencial</td>
+    <td><code>`atencion`</code></td>
+    <td><code>`created_at`</code></td>
+    <td><span class="badge bg-info text-dark">`Encounter.status`</span></td>
+    <td><small class="text-muted">in-progress</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">33</td>
+    <td>Código del diagnóstico principal</td>
+    <td><code>`diagnostico`</code></td>
+    <td><code>`cie10`</code></td>
+    <td><span class="badge bg-warning text-dark">`Condition.code.coding[0].code`</span></td>
+    <td><small class="text-muted">CIE-10 (ej. J45.9, I10)</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">34</td>
+    <td>Descripción del diagnóstico principal</td>
+    <td><code>`diagnostico`</code></td>
+    <td><code>`descripcion`</code></td>
+    <td><span class="badge bg-warning text-dark">`Condition.code.coding[0].display`</span></td>
+    <td><small class="text-muted">TEXTO ESTÁNDAR</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">35</td>
+    <td>Tipo de diagnóstico principal</td>
+    <td><code>`diagnostico`</code></td>
+    <td><code>`tipo_diagnostico`</code></td>
+    <td><span class="badge bg-warning text-dark">`Condition.clinicalStatus`</span></td>
+    <td><small class="text-muted">Presuntivo</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">36</td>
+    <td>Fecha del diagnóstico clínico</td>
+    <td><code>`diagnostico`</code></td>
+    <td><code>`fecha_diagnostico`</code></td>
+    <td><span class="badge bg-warning text-dark">`Condition.recordedDate`</span></td>
+    <td><small class="text-muted">DATE / DATETIME</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">37</td>
+    <td>Código diagnóstico relacionado 1</td>
+    <td><code>`diagnostico`</code></td>
+    <td><code>`cie10_rel1`</code></td>
+    <td><span class="badge bg-warning text-dark">`Condition.code (secondary)`</span></td>
+    <td><small class="text-muted">CIE-10</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">38</td>
+    <td>Código diagnóstico relacionado 2</td>
+    <td><code>`diagnostico`</code></td>
+    <td><code>`cie10_rel2`</code></td>
+    <td><span class="badge bg-warning text-dark">`Condition.code (secondary)`</span></td>
+    <td><small class="text-muted">CIE-10</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">39</td>
+    <td>Antecedente patológico personal</td>
+    <td><code>`diagnostico`</code></td>
+    <td><code>`antecedentes`</code></td>
+    <td><span class="badge bg-warning text-dark">`Condition (category: problem-list-item)`</span></td>
+    <td><small class="text-muted">CIE-10 / SNOMED CT</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">40</td>
+    <td>Antecedente farmacológico</td>
+    <td><code>`tecnologia_salud`</code></td>
+    <td><code>`antecedente_farmacologico`</code></td>
+    <td><span class="badge bg-secondary">`MedicationStatement.medication`</span></td>
+    <td><small class="text-muted">Código IUM / CUM</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">41</td>
+    <td>Antecedente alérgico</td>
+    <td><code>`usuario`</code></td>
+    <td><code>`alergias`</code></td>
+    <td><span class="badge bg-secondary">`AllergyIntolerance.code`</span></td>
+    <td><small class="text-muted">SNOMED CT</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">42</td>
+    <td>Código de la tecnología en salud / lab</td>
+    <td><code>`tecnologia_salud`</code></td>
+    <td><code>`codigo_tecnologia`</code></td>
+    <td><span class="badge bg-success">`Observation.code.coding[0].code`</span></td>
+    <td><small class="text-muted">LOINC (ej. 718-7, 2345-7) / CUPS</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">43</td>
+    <td>Descripción de la tecnología en salud</td>
+    <td><code>`tecnologia_salud`</code></td>
+    <td><code>`descripcion`</code></td>
+    <td><span class="badge bg-success">`Observation.code.coding[0].display`</span></td>
+    <td><small class="text-muted">TEXTO ESTÁNDAR</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">44</td>
+    <td>Fecha de realización del paraclínico</td>
+    <td><code>`tecnologia_salud`</code></td>
+    <td><code>`fecha_solicitud`</code></td>
+    <td><span class="badge bg-success">`Observation.effectiveDateTime`</span></td>
+    <td><small class="text-muted">DATETIME ISO-8601</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">45</td>
+    <td>Resultado cuantitativo de la medición</td>
+    <td><code>`tecnologia_salud`</code></td>
+    <td><code>`valor_resultado`</code></td>
+    <td><span class="badge bg-success">`Observation.valueQuantity.value`</span></td>
+    <td><small class="text-muted">DECIMAL (ej. 13.8)</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">46</td>
+    <td>Unidad de medida estandarizada</td>
+    <td><code>`tecnologia_salud`</code></td>
+    <td><code>`unidad_medida`</code></td>
+    <td><span class="badge bg-success">`Observation.valueQuantity.unit`</span></td>
+    <td><small class="text-muted">UCUM (ej. g/dL, mg/dL)</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">47</td>
+    <td>Interpretación clínica del resultado</td>
+    <td><code>`tecnologia_salud`</code></td>
+    <td><code>`interpretacion`</code></td>
+    <td><span class="badge bg-success">`Observation.interpretation`</span></td>
+    <td><small class="text-muted">Normal</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">48</td>
+    <td>Rango de referencia - límite inferior</td>
+    <td><code>`tecnologia_salud`</code></td>
+    <td><code>`rango_min`</code></td>
+    <td><span class="badge bg-success">`Observation.referenceRange.low`</span></td>
+    <td><small class="text-muted">DECIMAL</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">49</td>
+    <td>Rango de referencia - límite superior</td>
+    <td><code>`tecnologia_salud`</code></td>
+    <td><code>`rango_max`</code></td>
+    <td><span class="badge bg-success">`Observation.referenceRange.high`</span></td>
+    <td><small class="text-muted">DECIMAL</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">50</td>
+    <td>Procedimiento quirúrgico / terapéutico</td>
+    <td><code>`tecnologia_salud`</code></td>
+    <td><code>`codigo_procedimiento`</code></td>
+    <td><span class="badge bg-secondary">`Procedure.code.coding[0].code`</span></td>
+    <td><small class="text-muted">CUPS (Clasificación Única Proc)</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">51</td>
+    <td>Destino del usuario al egreso</td>
+    <td><code>`egreso`</code></td>
+    <td><code>`destino_usuario`</code></td>
+    <td><span class="badge bg-info text-dark">`Encounter.hospitalization.dischargeDisposition`</span></td>
+    <td><small class="text-muted">Domicilio</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">52</td>
+    <td>Diagnóstico principal de egreso</td>
+    <td><code>`egreso`</code></td>
+    <td><code>`diagnostico_principal_egreso`</code></td>
+    <td><span class="badge bg-info text-dark">`Condition / Encounter.diagnosis`</span></td>
+    <td><small class="text-muted">CIE-10</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">53</td>
+    <td>Fecha y hora del egreso asistencial</td>
+    <td><code>`egreso`</code></td>
+    <td><code>`fecha_egreso`</code></td>
+    <td><span class="badge bg-info text-dark">`Encounter.period.end`</span></td>
+    <td><small class="text-muted">DATETIME ISO-8601</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">54</td>
+    <td>Identificación del profesional de egreso</td>
+    <td><code>`egreso`</code></td>
+    <td><code>`profesional_egreso_id`</code></td>
+    <td><span class="badge bg-secondary">`Practitioner.identifier.value`</span></td>
+    <td><small class="text-muted">TEXTO</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">55</td>
+    <td>Plan de manejo y recomendaciones</td>
+    <td><code>`egreso`</code></td>
+    <td><code>`plan_manejo`</code></td>
+    <td><span class="badge bg-secondary">`CarePlan.description`</span></td>
+    <td><small class="text-muted">TEXTO</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">56</td>
+    <td>Sello criptográfico digital de atención</td>
+    <td><code>`mensaje_bus`</code></td>
+    <td><code>`sello_integridad_sha256`</code></td>
+    <td><span class="badge bg-secondary">`Provenance.signature / hash`</span></td>
+    <td><small class="text-muted">HASH SHA-256 (64 hex)</small></td>
+</tr><tr>
+    <td class="text-center fw-bold">57</td>
+    <td>Documento clínico consolidado (RDA)</td>
+    <td><code>`mensaje_bus`</code></td>
+    <td><code>`fhir_bundle_json`</code></td>
+    <td><span class="badge bg-secondary">`Bundle (transaction / document)`</span></td>
+    <td><small class="text-muted">BUNDLE FHIR R4 JSON</small></td>
+</tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- Secciones de Atenciones por Sede -->
                 <div id="rep-secciones-sedes">
                     <p class="text-muted">Generando reporte...</p>
