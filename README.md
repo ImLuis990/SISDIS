@@ -7,8 +7,8 @@
 
 | Integrante | Correo | Rol principal |
 |---|---|---|
-| Luis Fernando Rios Barboza | luis.rios@corposucre.edu.co | Arquitectura HSB, Parser HL7/CSV, Seguridad, Web App |
-| Jaime Andrés Villarreal Parra | jaime.villarreal@corposucre.edu.co | Modelo de datos, FHIR R4, ACID, Despliegue |
+| Luis Fernando Rios Barboza |eestudiante_luisriosb@uajs.edu.co Arquitectura HSB, Parser HL7/CSV, Seguridad, Web App |
+| Jaime Andrés Villarreal Parra | estudiante_jaimevillarrealp@uajs.edu.co | Modelo de datos, FHIR R4, ACID, Despliegue |
 
 ---
 
