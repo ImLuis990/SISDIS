@@ -193,7 +193,14 @@ SISDIS/
 │   ├── seguridad.py            # JWT + RBAC + 2FA (TOTP RFC 6238 / OTP)
 │   ├── consulta_unificada.py   # Motor de consulta distribuida
 │   ├── verificador_auditoria.py
-│   ├── templates/index.html    # 4 vistas Bootstrap 5
+│   ├── templates/              # Vistas HTML separadas con RBAC estricto
+│   │   ├── login.html          # Portal de autenticación con 2FA
+│   │   ├── paciente.html       # Portal exclusivo para Paciente
+│   │   ├── admision.html       # Portal exclusivo para Admisionista
+│   │   ├── medico.html         # Estación clínica para Médicos
+│   │   ├── auditor.html        # Tablero de Auditoría, Monitoreo y Res. 866
+│   │   ├── error_403.html      # Pantalla 403 Forbidden por RBAC
+│   │   └── index.html          # Vista unificada para demo/sustentación
 │   └── Dockerfile
 ├── hsb/                        # Health Service Bus (puerto 8001)
 │   ├── service.py              # Orquestador principal

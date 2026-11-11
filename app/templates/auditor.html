@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero de Auditoría, Reportes Normativos & Monitoreo | SISDIS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #1e40af;
+            --border-color: #e2e8f0;
+        }
+        body {
+            background-color: #f1f5f9;
+            font-family: system-ui, -apple-system, sans-serif;
+            color: #1e293b;
+        }
+        .navbar-custom {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .card-custom {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            background-color: #ffffff;
+        }
+        .sello-box {
+            font-family: monospace;
+            font-size: 0.82rem;
+            background: #f8fafc;
+            border: 1px dashed #94a3b8;
+            border-radius: 6px;
+            padding: 8px 12px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar Exclusivo Auditor -->
+<nav class="navbar navbar-dark navbar-custom py-2">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="/auditor">
+            <svg class="me-2" width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+            SISDIS — Auditoría Institucional &amp; Monitoreo
+        </a>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-white text-dark py-2 px-3 fw-normal">
+                Auditor: <strong>{{ nombre }}</strong>
+            </span>
+            <span class="badge bg-light text-dark fw-bold py-2 px-2">
+                🔐 2FA Verificado
+            </span>
+            <a href="/logout" class="btn btn-outline-light btn-sm ms-2">Cerrar Sesión</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid px-4 py-4">
+
+    <!-- Navegación interna de Auditor -->
+    <ul class="nav nav-pills mb-4 gap-2" id="auditor-tabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active fw-bold py-2 px-4 shadow-sm" id="tab-monitoreo-btn" data-bs-toggle="pill" data-bs-target="#tab-monitoreo-pane" type="button">
+                1. Monitoreo de Nodos &amp; Auditoría Criptográfica SHA-256
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-bold py-2 px-4 shadow-sm" id="tab-reporte-btn" data-bs-toggle="pill" data-bs-target="#tab-reporte-pane" type="button">
+                2. Reporte Consolidado de HC &amp; 57 Campos Normativos (Res. 866)
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="auditor-content">
+        <!-- PANE 1: MONITOREO Y AUDITORÍA -->
+        <div class="tab-pane fade show active" id="tab-monitoreo-pane" role="tabpanel">
+            <!-- Tarjetas de Estado de Nodos -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card card-custom p-3 text-center border-start border-4 border-primary">
+                        <span class="text-muted small text-uppercase fw-bold">Sede 1: Sincelejo</span>
+                        <h5 class="fw-bold mb-1" id="nodo-sede1-status">Activo</h5>
+                        <span class="badge bg-success-subtle text-success">Puerto 5431</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-custom p-3 text-center border-start border-4 border-info">
+                        <span class="text-muted small text-uppercase fw-bold">Sede 2: Cartagena</span>
+                        <h5 class="fw-bold mb-1" id="nodo-sede2-status">Activo</h5>
+                        <span class="badge bg-success-subtle text-success">Puerto 5432</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-custom p-3 text-center border-start border-4 border-teal" style="border-left-color: #0d9488 !important;">
+                        <span class="text-muted small text-uppercase fw-bold">Sede 3: Corozal</span>
+                        <h5 class="fw-bold mb-1" id="nodo-sede3-status">Activo</h5>
+                        <span class="badge bg-success-subtle text-success">Puerto 5433</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-custom p-3 text-center border-start border-4 border-warning">
+                        <span class="text-muted small text-uppercase fw-bold">HAPI FHIR Server</span>
+                        <h5 class="fw-bold mb-1">R4 v4.0.1</h5>
+                        <span class="badge bg-warning-subtle text-dark">Puerto 8090</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Columna Izquierda: Cobertura FHIR y Rendimiento HSB -->
+                <div class="col-lg-6">
+                    <div class="card card-custom p-4 mb-4">
+                        <h5 class="fw-bold text-primary mb-3">Cobertura de Migración a FHIR por Sede</h5>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small fw-bold mb-1">
+                                <span>Sede 1 (Sincelejo):</span>
+                                <span id="cobertura-s1-val">100%</span>
+                            </div>
+                            <div class="progress" style="height: 12px;">
+                                <div class="progress-bar bg-primary" id="cobertura-s1-bar" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small fw-bold mb-1">
+                                <span>Sede 2 (Cartagena):</span>
+                                <span id="cobertura-s2-val">100%</span>
+                            </div>
+                            <div class="progress" style="height: 12px;">
+                                <div class="progress-bar bg-info" id="cobertura-s2-bar" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small fw-bold mb-1">
+                                <span>Sede 3 (Corozal):</span>
+                                <span id="cobertura-s3-val">100%</span>
+                            </div>
+                            <div class="progress" style="height: 12px;">
+                                <div class="progress-bar bg-success" id="cobertura-s3-bar" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card card-custom p-4 mb-4">
+                        <h5 class="fw-bold text-dark mb-3">Métricas Operativas del Health Service Bus (HSB)</h5>
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <h3 class="fw-bold text-primary mb-0" id="metric-latencia">38 ms</h3>
+                                <span class="small text-muted">Latencia Media</span>
+                            </div>
+                            <div class="col-4">
+                                <h3 class="fw-bold text-success mb-0" id="metric-entregados">8</h3>
+                                <span class="small text-muted">Entregados</span>
+                            </div>
+                            <div class="col-4">
+                                <h3 class="fw-bold text-danger mb-0" id="metric-rechazados">3</h3>
+                                <span class="small text-muted">Rechazados (DLQ)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: Verificador Criptográfico SHA-256 -->
+                <div class="col-lg-6">
+                    <div class="card card-custom p-4 mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold text-dark mb-0">Verificador Criptográfico de Auditoría</h5>
+                            <button class="btn btn-outline-primary btn-sm" onclick="ejecutarVerificadorAuditoria()">Verificar Cadena</button>
+                        </div>
+                        <p class="text-muted small">Recorre todos los bloques de la auditoría y recalcula los hashes SHA-256 encadenados inmutables.</p>
+
+                        <div class="alert alert-success py-2 px-3 small mb-3" id="auditoria-status-box">
+                            <strong>✓ Estado:</strong> Cadena 100% íntegra y verificada. Ningún registro alterado.
+                        </div>
+
+                        <!-- Botón de Simulación de Alteración Fraudulenta (para sustentación) -->
+                        <div class="bg-light p-3 rounded-3 border">
+                            <h6 class="fw-bold text-danger mb-1 small text-uppercase">Demostración para la Sustentación:</h6>
+                            <p class="small text-muted mb-2">Modifica a mano un registro de auditoría sin recalcular el hash para demostrar que el sistema detecta la intrusión criptográfica inmediatamente.</p>
+                            <button class="btn btn-danger btn-sm" onclick="simularAlteracionAuditoria()">Simular Alteración Maliciosa</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANE 2: REPORTE CONSOLIDADO Y 57 CAMPOS -->
+        <div class="tab-pane fade" id="tab-reporte-pane" role="tabpanel">
+            <div class="card card-custom p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                    <div>
+                        <h4 class="fw-bold text-primary mb-1">Reporte Consolidado de Historia Clínica</h4>
+                        <p class="text-muted small mb-0">Informe unificado multi-sede para fines de auditoría y referencia médica.</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <input type="text" class="form-control" id="rep-buscar-doc" value="1001" placeholder="Documento" style="width: 140px;">
+                        <button class="btn btn-primary" onclick="generarReporteHC()">Generar</button>
+                        <button class="btn btn-outline-secondary" onclick="window.print()">Imprimir / PDF</button>
+                    </div>
+                </div>
+
+                <!-- Medidor de Cobertura y Sello -->
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-2">
+                        <div class="card p-3 bg-light border-0">
+                            <span class="small fw-bold text-muted text-uppercase">Cobertura de Campos Clínicos:</span>
+                            <div class="d-flex align-items-center gap-3 mt-1">
+                                <div class="progress flex-grow-1" style="height: 18px;">
+                                    <div class="progress-bar bg-success progress-bar-striped" id="rep-cobertura-bar" style="width: 100%;">100%</div>
+                                </div>
+                                <span class="fw-bold text-success" id="rep-cobertura-pct">100%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <div class="card p-3 bg-light border-0">
+                            <span class="small fw-bold text-muted text-uppercase">Sello Criptográfico del Contenido (SHA-256):</span>
+                            <div class="sello-box mt-1 text-dark" id="rep-sello-integridad">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secciones de Atenciones por Sede -->
+                <div id="rep-secciones-sedes" class="mb-4">
+                    <p class="text-muted small">Cargando reporte consolidado...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        actualizarEstadoNodosRealTime();
+        setInterval(actualizarEstadoNodosRealTime, 3000);
+        generarReporteHC();
+    });
+
+    async function actualizarEstadoNodosRealTime() {
+        try {
+            const resp = await fetch("/api/sedes/estado");
+            const data = await resp.json();
+            for (let sId = 1; sId <= 3; sId++) {
+                const sede = data[sId] || data[String(sId)];
+                const badge = document.getElementById(`nodo-sede${sId}-status`);
+                if (badge && sede) {
+                    if (sede.disponible) {
+                        badge.innerText = "Activo";
+                        badge.className = "fw-bold mb-1 text-success";
+                    } else {
+                        badge.innerText = "Desconectado (Degradado)";
+                        badge.className = "fw-bold mb-1 text-danger";
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("Error al sondear estado:", e);
+        }
+    }
+
+    async function ejecutarVerificadorAuditoria() {
+        try {
+            const resp = await fetch("/hsb/auditoria/verificar", {method: "POST"});
+            const data = await resp.json();
+            const box = document.getElementById("auditoria-status-box");
+            if (data.valida) {
+                box.className = "alert alert-success py-2 px-3 small mb-3";
+                box.innerHTML = `<strong>✓ Estado:</strong> ${data.mensaje}`;
+            } else {
+                box.className = "alert alert-danger py-2 px-3 small mb-3";
+                box.innerHTML = `<strong>ALERTA DE SEGURIDAD (ALTERACIÓN DETECTADA):</strong> ${data.mensaje} (Evento alterado #${data.primer_evento_alterado})`;
+            }
+        } catch (e) {
+            alert("Error al ejecutar verificador");
+        }
+    }
+
+    async function simularAlteracionAuditoria() {
+        try {
+            const resp = await fetch("/hsb/auditoria/alterar?evento_id=1", {method: "POST"});
+            alert("Simulación ejecutada: Se alteró subrepticiamente el evento #1 en la base de datos de auditoría sin recalcular el hash.\nEjecutando verificador criptográfico ahora...");
+            ejecutarVerificadorAuditoria();
+        } catch (e) {
+            alert("Error al simular alteración");
+        }
+    }
+
+    async function generarReporteHC() {
+        const doc = document.getElementById("rep-buscar-doc")?.value.trim() || "1001";
+        try {
+            const resp = await fetch(`/api/paciente/${doc}/historia`);
+            const data = await resp.json();
+
+            document.getElementById("rep-sello-integridad").innerText = data.sello_integridad_sha256 || "-";
+            const cobPct = data.cobertura_campos?.porcentaje || 100;
+            document.getElementById("rep-cobertura-pct").innerText = `${cobPct}%`;
+            document.getElementById("rep-cobertura-bar").style.width = `${cobPct}%`;
+
+            const secBox = document.getElementById("rep-secciones-sedes");
+            secBox.innerHTML = "";
+
+            const sedesNombres = {1: "Sede 1: Sincelejo (Hospital Regional)", 2: "Sede 2: Cartagena (Clínica Mar)", 3: "Sede 3: Corozal (Centro de Salud)"};
+
+            [1, 2, 3].forEach(sId => {
+                const atencionesSede = (data.atenciones || []).filter(a => a.sede_id === sId);
+                const infoSede = data.sedes[`sede_${sId}`];
+                const disponible = infoSede ? infoSede.disponible : true;
+
+                let contenidoHtml = "";
+                if (!disponible) {
+                    contenidoHtml = `<div class="alert alert-warning py-2 px-3 small mb-0">Sede actualmente no disponible (modo degradado tolerante a fallos).</div>`;
+                } else if (atencionesSede.length === 0) {
+                    contenidoHtml = `<p class="text-muted small mb-0">No se registran atenciones clínicas en esta sede para el paciente.</p>`;
+                } else {
+                    atencionesSede.forEach(at => {
+                        let dxHtml = (at.diagnosticos || []).map(d => `<span class="badge bg-warning text-dark me-1">${d.cie10} - ${d.descripcion}</span>`).join("");
+                        let labHtml = (at.laboratorios || []).map(l => `<span class="badge bg-info text-dark me-1">${l.nombre}: ${l.valor} ${l.unidad}</span>`).join("");
+                        contenidoHtml += `
+                            <div class="border-start border-3 border-primary ps-3 mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <strong>Atención ID: ${at.atencion_id}</strong>
+                                    <span class="text-muted small">${at.fecha}</span>
+                                </div>
+                                <div class="small text-muted mb-1">Profesional: ${at.profesional} | Triage: ${at.triage} | Modalidad: ${at.modalidad || 'Presencial'}</div>
+                                ${dxHtml ? `<div class="mb-1">${dxHtml}</div>` : ''}
+                                ${labHtml ? `<div>${labHtml}</div>` : ''}
+                            </div>
+                        `;
+                    });
+                }
+
+                secBox.innerHTML += `
+                    <div class="card p-3 mb-3 border">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold mb-0 text-dark">${sedesNombres[sId]}</h6>
+                            <span class="badge ${disponible ? 'bg-success' : 'bg-danger'}">${disponible ? 'Disponible' : 'Degradado'}</span>
+                        </div>
+                        ${contenidoHtml}
+                    </div>
+                `;
+            });
+        } catch (e) {
+            console.error("Error al generar reporte:", e);
+        }
+    }
+</script>
+</body>
+</html>

@@ -50,6 +50,16 @@ Para robustecer la protección de la información clínica y dar estricto cumpli
    - `GET /api/auth/2fa/info/{usuario}`: Provee el secreto Base32 y URI `otpauth://` para enrolamiento en dispositivos móviles.
 4. **Trazabilidad en Auditoría Inmutable:** Cada paso del ciclo de vida de autenticación genera registros encadenados por hash: `LOGIN_PASO1_OK`, `LOGIN_2FA_EXITOSO`, y `LOGIN_2FA_FALLIDO`.
 
+### 1.4 Aislamiento Estricto de Vistas Web por Rol (Separación Física de Plantillas)
+A fin de evitar la exposición de formularios o datos confidenciales en el cliente (inspección de DOM o pestañas unificadas sin control), la plataforma implementa una separación estricta de plantillas HTML y rutas protegidas por RBAC desde el servidor:
+- **`/login` (`templates/login.html`):** Portal de ingreso seguro con selector de rol y desafío 2FA interactivo.
+- **`/paciente` (`templates/paciente.html`):** Portal exclusivo para pacientes. No contiene código ni formularios de admisión, diagnósticos médicos ni auditoría.
+- **`/admision` (`templates/admision.html`):** Portal exclusivo de admisión asistencial y clasificación de triage. No expone diagnósticos confidenciales ni opciones médicas.
+- **`/medico` (`templates/medico.html`):** Estación clínica médica con registro de diagnósticos CIE-10, órdenes médicas y emisión de sellos criptográficos.
+- **`/auditor` (`templates/auditor.html`):** Tablero institucional con verificador SHA-256, monitoreo de sedes y los 57 campos normativos (Resolución 866).
+- **`templates/error_403.html`:** Respuesta visual estandarizada con código HTTP `403 Forbidden` cuando un usuario autenticado intenta ingresar a una ruta no autorizada para su rol.
+- **Protección de Navegación y Sesión:** El enrutador raíz `/` evalúa el token JWT en cookie y redirige de manera transparente al portal del rol asignado, o a `/login` si no hay sesión activa.
+
 ---
 
 ## 2. Auditoría Inmutable Encadenada por Hash SHA-256

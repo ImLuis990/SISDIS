@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admisión y Clasificación de Triage | SISDIS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #1e40af;
+            --border-color: #e2e8f0;
+        }
+        body {
+            background-color: #f1f5f9;
+            font-family: system-ui, -apple-system, sans-serif;
+            color: #1e293b;
+        }
+        .navbar-custom {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .card-custom {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            background-color: #ffffff;
+        }
+        .badge-sede-1 { background-color: #4f46e5; color: white; }
+        .badge-sede-2 { background-color: #0284c7; color: white; }
+        .badge-sede-3 { background-color: #0d9488; color: white; }
+    </style>
+</head>
+<body>
+
+<!-- Navbar Exclusivo Admisionista -->
+<nav class="navbar navbar-dark navbar-custom py-2">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="/admision">
+            <svg class="me-2" width="26" height="26" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+            SISDIS — Admisión &amp; Triage Hospitalario
+        </a>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-white text-dark py-2 px-3 fw-normal">
+                Admisión: <strong>{{ nombre }}</strong>
+            </span>
+            <span class="badge bg-light text-primary fw-bold py-2 px-2">
+                🔐 2FA Verificado
+            </span>
+            <a href="/logout" class="btn btn-outline-light btn-sm ms-2">Cerrar Sesión</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid px-4 py-4">
+    <div class="row">
+        <!-- Columna Izquierda: Admisión y Triage -->
+        <div class="col-lg-6">
+            <div class="card card-custom p-4 mb-4">
+                <h4 class="fw-bold text-primary mb-3">Admisión y Clasificación de Triage</h4>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="adm-buscar-doc" placeholder="Número de documento del paciente (ej: 1001, 1007, 1008)">
+                    <button class="btn btn-primary" onclick="admBuscarPaciente()">Buscar Paciente</button>
+                </div>
+
+                <!-- Resultado de Sedes donde Existe -->
+                <div id="adm-sedes-resultado" class="mb-3 d-none">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Presencia en Sedes de la Red:</label>
+                    <div class="d-flex gap-2 mb-2" id="adm-sedes-badges"></div>
+                </div>
+
+                <!-- Formulario de Admisión -->
+                <form id="adm-form" onsubmit="admitirPaciente(event)">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Sede de Admisión:</label>
+                        <select class="form-select" id="adm-sede-select">
+                            <option value="1">Sede 1: Sincelejo (Hospital Regional)</option>
+                            <option value="2">Sede 2: Cartagena (Clínica Mar)</option>
+                            <option value="3" selected>Sede 3: Corozal (Centro de Salud San Juan)</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">Nivel de Triage (1 a 5):</label>
+                            <select class="form-select" id="adm-triage-select" required>
+                                <option value="1">1 - Resucitación (Crítico inmediato)</option>
+                                <option value="2">2 - Emergencia (Riesgo vital)</option>
+                                <option value="3" selected>3 - Urgencia (Atención prioritaria)</option>
+                                <option value="4">4 - Prioritario (Consulta ambulatoria)</option>
+                                <option value="5">5 - No urgente</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold">Modalidad:</label>
+                            <select class="form-select" id="adm-modalidad-select">
+                                <option value="Presencial" selected>Presencial</option>
+                                <option value="Telemedicina">Telemedicina</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Motivo de Consulta:</label>
+                        <textarea class="form-control" id="adm-motivo" rows="2" placeholder="Motivo administrativo de ingreso..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 fw-bold py-2">Registrar Admisión y Transmitir al HSB</button>
+                </form>
+
+                <div class="alert alert-success mt-3 d-none" id="adm-exito-box"></div>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Estado de Mensajes en el Bus (Sin contenido clínico confidencial) -->
+        <div class="col-lg-6">
+            <div class="card card-custom p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0">Estado de Mensajes en el HSB</h5>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="cargarMensajesHSB()">Refrescar</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle small" id="tabla-mensajes-hsb">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID Control</th>
+                                <th>Formato</th>
+                                <th>Sede</th>
+                                <th>Documento</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="5" class="text-center text-muted">Cargando mensajes del bus...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card card-custom p-3 bg-light border">
+                <small class="text-muted">
+                    <strong>Principio de Mínimo Privilegio (RBAC):</strong> Como admisionista, usted solo visualiza la existencia técnica y los estados de transporte en el Health Service Bus (HSB). Los diagnósticos médicos, prescripciones y notas de evolución están reservados para el personal médico tratante.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        cargarMensajesHSB();
+    });
+
+    async function admBuscarPaciente() {
+        const doc = document.getElementById("adm-buscar-doc").value.trim();
+        if (!doc) return;
+
+        try {
+            const resp = await fetch(`/api/admision/buscar/${doc}`);
+            const data = await resp.json();
+
+            const resultadoBox = document.getElementById("adm-sedes-resultado");
+            const badgesBox = document.getElementById("adm-sedes-badges");
+            badgesBox.innerHTML = "";
+
+            data.sedes.forEach(s => {
+                const color = s.existe ? "bg-success" : "bg-secondary opacity-50";
+                badgesBox.innerHTML += `<span class="badge ${color} p-2">${s.nombre}: ${s.existe ? '✓ Registrado' : 'No existe'}</span>`;
+            });
+            resultadoBox.classList.remove("d-none");
+        } catch (e) {
+            console.error("Error al buscar sedes:", e);
+        }
+    }
+
+    async function admitirPaciente(event) {
+        event.preventDefault();
+        const doc = document.getElementById("adm-buscar-doc").value.trim();
+        if (!doc) {
+            alert("Ingrese primero el documento del paciente");
+            return;
+        }
+
+        const sedeId = parseInt(document.getElementById("adm-sede-select").value);
+        const triage = document.getElementById("adm-triage-select").value;
+        const motivo = document.getElementById("adm-motivo").value.trim();
+
+        try {
+            const resp = await fetch("/api/admision/admitir", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    documento_id: parseInt(doc),
+                    sede_id: sedeId,
+                    triage: triage,
+                    motivo: motivo
+                })
+            });
+            const data = await resp.json();
+            const exitoBox = document.getElementById("adm-exito-box");
+            exitoBox.innerText = `✓ Admisión Registrada: ${data.mensaje} (ID: ${data.id_control})`;
+            exitoBox.classList.remove("d-none");
+            cargarMensajesHSB();
+        } catch (e) {
+            alert("Error al registrar admisión");
+        }
+    }
+
+    async function cargarMensajesHSB() {
+        try {
+            const resp = await fetch("/hsb/mensajes");
+            const data = await resp.json();
+            const tbody = document.querySelector("#tabla-mensajes-hsb tbody");
+            tbody.innerHTML = "";
+
+            if (!data.mensajes || data.mensajes.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='5' class='text-center text-muted'>No hay mensajes en cola</td></tr>";
+                return;
+            }
+
+            data.mensajes.slice(0, 10).forEach(m => {
+                let badgeClass = m.status === 'entregado' ? 'bg-success' : (m.status === 'duplicado' ? 'bg-info' : 'bg-danger');
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="font-monospace">${m.id_control || 'N/A'}</td>
+                        <td><span class="badge bg-light text-dark border">${m.formato || 'HL7'}</span></td>
+                        <td>Sede ${m.sede || 1}</td>
+                        <td>${m.paciente || '-'}</td>
+                        <td><span class="badge ${badgeClass}">${m.status || 'OK'}</span></td>
+                    </tr>
+                `;
+            });
+        } catch (e) {
+            console.error("Error al cargar mensajes HSB:", e);
+        }
+    }
+</script>
+</body>
+</html>
