@@ -296,6 +296,16 @@ class MotorConsultaUnificada:
                     "estado": "no_disponible (degradado)",
                     "motivo": f"Contenedor {info_sede.get('host')} detenido (docker stop) o inalcanzable"
                 }
+                # Si la sede fue apagada explícitamente (simulación de caída real de nodo),
+                # NO recuperar datos locales — es un fallo genuino de red.
+                # Solo usar fallback local si no hay conexión por ausencia de Docker/BD.
+                if s_id not in self.sedes_apagadas:
+                    datos_nodo = self.datos_simulados_locales.get(s_id, {}).get(doc_int)
+                    if datos_nodo:
+                        if not paciente_datos:
+                            paciente_datos = dict(datos_nodo["paciente"])
+                        for at in datos_nodo.get("atenciones", []):
+                            todas_atenciones.append(at)
                 continue
 
             # Sede conectada y respondiendo
